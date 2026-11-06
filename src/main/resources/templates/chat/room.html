@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head(${room.chatRoomName})}"></head>
+<link rel="stylesheet" th:href="@{/css/board.css}">
+<body>
+<header th:replace="~{fragments/layout :: header('community')}"></header>
+
+<main class="main board board-chat chat-room">
+    <div class="wrap">
+
+        <section class="board-hero">
+            <div class="board-hero-icon"><i data-lucide="messages-square" class="ico ico-lg"></i></div>
+            <div class="board-hero-text">
+                <span class="board-eyebrow" th:text="${room.chatRoomRegion.label}">부산</span>
+                <h1 th:text="${room.chatRoomName}">톡방 이름</h1>
+                <p>
+                    <span class="chat-online" id="onlineCount" th:text="${room.onlineCount} + '명 접속 중'">0명 접속 중</span>
+                    <span class="chat-status" id="chatStatus">연결 중…</span>
+                </p>
+            </div>
+            <div class="board-hero-actions">
+                <!-- 나가기: 연결을 끊고(접속 인원 -1) 지역 톡방 목록으로 -->
+                <a th:href="@{/chat/region/{region}(region=${room.chatRoomRegion.name()})}" class="btn btn-line"
+                   id="leaveRoom">
+                    <i data-lucide="log-out" class="ico"></i>방 나가기
+                </a>
+            </div>
+        </section>
+
+        <div class="card">
+            <th:block th:replace="~{fragments/chat :: log}"></th:block>
+        </div>
+
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/board :: icons}"></th:block>
+<th:block th:replace="~{fragments/chat :: script(@{/chat/rooms/{id}(id=${room.chatRoomId})})}"></th:block>
+<script>
+    document.getElementById('leaveRoom').addEventListener('click', () => sseChat.leave());
+</script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+.confirm-modal {
+    width: 360px;
+    max-width: calc(100vw - 32px);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: 0 16px 40px rgba(30, 41, 59, .18);
+}
+
+.confirm-modal::backdrop {
+    background: rgba(30, 41, 59, .45);
+}
+
+.confirm-modal .body {
+    padding: 28px 24px 20px;
+    text-align: center;
+}
+
+.confirm-modal .title {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.confirm-modal .message {
+    margin-top: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-2);
+    white-space: pre-line;
+}
+
+.confirm-modal .actions {
+    display: flex;
+    gap: 8px;
+    padding: 0 24px 24px;
+}
+
+.confirm-modal .actions .btn {
+    flex: 1;
+}
+
+.btn-danger {
+    background: var(--danger);
+    color: #fff;
+}
+
+.btn-danger:hover {
+    background: #C93A3F;
+}

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('간편 가입')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('')}"></header>
+
+<main class="main">
+    <div class="wrap">
+        <div class="auth">
+            <h1>간편 가입</h1>
+            <div class="card">
+                <div class="card-body">
+                    <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+
+                    <!-- 소셜로 처음 온 사람. 동의해야 가입(저장)된다 -->
+                    <p class="hint" style="margin-bottom: 16px;">
+                        <b th:text="${loginMember.memberNickname}">여행자</b> 님, 가입을 마치려면 필수 약관에 동의해 주세요.
+                    </p>
+                    <form th:action="@{/signup/social}" method="post">
+                        <div th:replace="~{fragments/terms :: consent(${requiredTerms}, ${siteInfo})}"></div>
+                        <button type="submit" class="btn btn-lg btn-primary btn-full" style="margin-top: 8px;">동의하고 가입하기</button>
+                    </form>
+                    <!-- 동의하지 않으면 로그아웃. 아무것도 저장되지 않는다 -->
+                    <form th:action="@{/logout}" method="post" style="margin-top: 8px;">
+                        <button type="submit" class="btn btn-lg btn-line btn-full">동의하지 않고 나가기</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

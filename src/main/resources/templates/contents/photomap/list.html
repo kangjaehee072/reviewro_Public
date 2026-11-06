@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('내 포토맵')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('contents')}"></header>
+
+<main class="main">
+    <div class="wrap">
+        <section class="mypage-content">
+            <div class="page-head">
+                <div>
+                    <h1>내 포토맵</h1>
+                    <p>여행 사진으로 나만의 대한민국 지도를 채워보세요</p>
+                </div>
+                <a th:href="@{/contents/photomap/new}" class="btn btn-primary">+ 새 포토맵 만들기</a>
+            </div>
+
+            <div th:if="${#lists.isEmpty(photoMaps)}" class="card">
+                <div class="card-body empty">
+                    <div class="empty-icon">🗺️</div>
+                    <p>아직 만든 포토맵이 없어요<br>넬로와 함께 첫 포토맵을 만들어봐요</p>
+                    <a th:href="@{/contents/photomap/new}" class="btn btn-primary">첫 포토맵 만들기</a>
+                </div>
+            </div>
+
+            <div th:unless="${#lists.isEmpty(photoMaps)}" class="photomap-grid">
+                <a th:each="m : ${photoMaps}" th:href="@{/contents/photomap/{id}(id=${m.photoMapId})}" class="photomap-card">
+                    <div class="thumbs">
+                        <th:block th:each="i, st : ${m.photoMapImages}" th:if="${st.index < 4}">
+                            <img th:src="${i.photoMapImagePath}" alt="">
+                        </th:block>
+                        <div th:if="${#lists.isEmpty(m.photoMapImages)}" class="thumb-empty">🗺️</div>
+                    </div>
+                    <div class="info">
+                        <div class="title" th:text="${m.photoMapTitle}"></div>
+                        <div class="meta">
+                            <span th:text="${#lists.size(m.photoMapImages)} + '개 지역'"></span>
+                            <span th:text="${#temporals.format(m.updatedAt, 'yyyy.MM.dd')}"></span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </section>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

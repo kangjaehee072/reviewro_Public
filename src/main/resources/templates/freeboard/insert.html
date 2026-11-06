@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('자유게시판 글쓰기')}"></head>
+<link rel="stylesheet" th:href="@{/css/board.css}">
+<body>
+<header th:replace="~{fragments/layout :: header('community')}"></header>
+
+<main class="main board board-free">
+    <div class="wrap">
+        <div class="board-form">
+
+            <a th:href="@{/freeboard/list}" class="back-link"><i data-lucide="chevron-left" class="ico"></i>자유게시판</a>
+            <div class="board-form-head">
+                <h1>글쓰기</h1>
+                <p>여행 이야기를 자유롭게 나눠요</p>
+            </div>
+
+            <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+
+            <form class="card" th:action="@{/freeboard/insert}" th:object="${freeBoardDto}" method="post"
+                  enctype="multipart/form-data">
+
+                <section class="form-section">
+                    <div class="field">
+                        <label for="freeBoardTitle">제목<span class="req">*</span></label>
+                        <input type="text" id="freeBoardTitle" th:field="*{freeBoardTitle}" required
+                               placeholder="제목을 입력하세요">
+                    </div>
+
+                    <div class="field">
+                        <label for="freeBoardContent">내용<span class="req">*</span></label>
+                        <textarea id="freeBoardContent" th:field="*{freeBoardContent}" rows="12" required
+                                  placeholder="내용을 입력하세요"></textarea>
+                    </div>
+
+                    <div class="field">
+                        <label for="images">사진</label>
+                        <div class="upload-box">
+                            <i data-lucide="image-plus" class="ico"></i>
+                            <div>
+                                <input type="file" id="images" name="images" accept="image/*" multiple>
+                                <small>여러 장 올릴 수 있어요. 첫 장이 목록 썸네일이 됩니다.</small>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="board-form-foot">
+                    <a th:href="@{/freeboard/list}" class="btn btn-line">취소</a>
+                    <button type="submit" class="btn btn-board"><i data-lucide="check" class="ico"></i>등록하기</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/board :: icons}"></th:block>
+</body>
+</html>

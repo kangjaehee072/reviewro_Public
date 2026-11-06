@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('챌린지 상세')}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReviewRo - 챌린지 상세 및 수정</title>
+    <!-- Tailwind CSS & Lucide Icons CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main.css}" href="/css/main.css">
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between bg-slate-100">
+
+<!-- 1. Nav / Header 영역 -->
+<header th:replace="~{fragments/layout :: header('contents')}"></header>
+
+<!-- Main Container (사이드바 & 메인 영역 분리) -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-1">
+    <div class="flex flex-col lg:flex-row items-start gap-6">
+
+        <!-- ==================== [좌측 사이드바] (챌린지 메뉴 활성화) ==================== -->
+        <aside th:replace="~{fragments/admin-menu :: menu('challenges')}"></aside>
+
+        <!-- ==================== [우측 메인 콘텐츠 영역] ==================== -->
+        <section class="flex-1 w-full space-y-6">
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
+                <!-- 페이지 타이틀 -->
+                <div class="pb-4 border-b border-slate-100 flex items-center justify-between">
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-900">챌린지 상세 및 수정</h1>
+                        <p class="text-xs text-slate-500 mt-0.5">등록된 챌린지 정보를 확인하고 수정하거나 삭제할 수 있습니다.</p>
+                    </div>
+                    <span class="px-3 py-1 bg-blue-50 text-blue-600 rounded-full font-bold text-xs" th:text="'ID: ' + ${challenge.challengeId}">ID: 1</span>
+                </div>
+
+                <!-- 에러 및 성공 메시지 알림 -->
+                <div th:if="${errorMessage}" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-xs font-semibold shadow-sm" th:text="${errorMessage}"></div>
+                <div th:if="${successMessage}" class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl text-xs font-semibold shadow-sm" th:text="${successMessage}"></div>
+
+                <!-- 폼 시작 (기존 바인딩 유지) -->
+                <form id="updateForm" th:action="@{/challengeupdate}" th:object="${challenge}" method="post" class="space-y-6 text-xs">
+                    <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <input type="hidden" th:field="*{challengeId}"/>
+
+                    <!-- 와이어프레임 반영: 2블록으로 분할 (화면이 줄어들면 세로로 나열) -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                        <!-- 블록 1: 기본 정보 (번호, 이름, 생성/수정일시) -->
+                        <div class="space-y-4 bg-slate-50/50 p-5 rounded-xl border border-slate-100 flex flex-col justify-between">
+                            <div class="space-y-4">
+                                <h3 class="font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                                    <i data-lucide="info" class="w-4 h-4 text-blue-600"></i> 기본 정보 및 메타데이터
+                                </h3>
+
+                                <!-- 챌린지 이름 -->
+                                <div class="space-y-1.5">
+                                    <label for="challengeName" class="block font-semibold text-slate-700">
+                                        챌린지 이름 <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" id="challengeName" th:field="*{challengeName}" required
+                                           class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-blue-500">
+                                </div>
+
+                                <!-- 생성일시 (존재할 경우에만 표시) -->
+                                <div class="space-y-1.5" th:if="${challenge.createdAt != null}">
+                                    <label for="createdAt" class="block font-semibold text-slate-500">생성일시</label>
+                                    <input type="text" id="createdAt" readonly
+                                           th:value="${#temporals.format(challenge.createdAt, 'yyyy-MM-dd HH:mm:ss')}"
+                                           class="w-full px-3.5 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-slate-500 cursor-not-allowed">
+                                </div>
+
+                                <!-- 최종 수정일시 (존재할 경우에만 표시) -->
+                                <div class="space-y-1.5" th:if="${challenge.updatedAt != null}">
+                                    <label for="updatedAt" class="block font-semibold text-slate-500">최종 수정일시</label>
+                                    <input type="text" id="updatedAt" readonly
+                                           th:value="${#temporals.format(challenge.updatedAt, 'yyyy-MM-dd HH:mm:ss')}"
+                                           class="w-full px-3.5 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-slate-500 cursor-not-allowed">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 블록 2: 상세 설명 -->
+                        <div class="space-y-4 bg-slate-50/50 p-5 rounded-xl border border-slate-100 flex flex-col justify-between">
+                            <div class="space-y-4 h-full flex flex-col">
+                                <h3 class="font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                                    <i data-lucide="file-text" class="w-4 h-4 text-blue-600"></i> 상세 설명
+                                </h3>
+
+                                <div class="space-y-1.5 flex-1 flex flex-col">
+                                    <label for="challengeDescription" class="block font-semibold text-slate-700">
+                                        챌린지 설명
+                                    </label>
+                                    <textarea id="challengeDescription" th:field="*{challengeDescription}" rows="8"
+                                              placeholder="챌린지 상세 설명을 입력하세요"
+                                              class="w-full flex-1 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-blue-500 resize-none"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- 하단 버튼 영역 (목록으로 / 삭제 / 수정 완료) -->
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                        <a th:href="@{/challengelist}" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-colors">목록으로</a>
+                        <div class="flex items-center gap-2">
+                            <button type="submit" form="deleteForm" class="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 font-semibold rounded-xl transition-colors"
+                                    onclick="return confirm('정말 이 챌린지를 삭제하시겠습니까?');">삭제</button>
+                            <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition-all">수정 완료</button>
+                        </div>
+                    </div>
+
+                </form>
+
+                <!-- 삭제 전용 폼 (form 중첩 방지) -->
+                <form id="deleteForm" method="post" style="display:none"
+                      th:action="@{/challengedelete/{id}(id=${challenge.challengeId})}">
+                    <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}"/>
+                </form>
+
+            </div>
+
+        </section>
+
+    </div>
+</main>
+
+<!-- Footer 영역 -->
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<!-- Script Initialization -->
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('동행자 구하기')}"></head>
+<link rel="stylesheet" th:href="@{/css/board.css}">
+<body>
+<header th:replace="~{fragments/layout :: header('community')}"></header>
+
+<main class="main board board-companion">
+    <div class="wrap">
+
+        <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+        <div th:if="${successMessage}" class="notice notice-ok" th:text="${successMessage}"></div>
+
+        <article class="card post" th:with="writer=${postDto.companionPostMember ?: '회원'}">
+            <header class="post-head">
+                <div class="post-badges">
+                    <span class="badge badge-board">동행 모집</span>
+                </div>
+                <h1 class="post-title" th:text="${postDto.companionPostTitle}">글 제목</h1>
+
+                <div class="post-meta">
+                    <span>
+                        <span class="post-avatar" th:text="${#strings.substring(writer, 0, 1)}">김</span>
+                        <span class="post-author" th:text="${writer}">작성자</span>
+                    </span>
+                    <span><i data-lucide="calendar" class="ico"></i>
+                        <span th:text="${#temporals.format(postDto.createdAt, 'yyyy-MM-dd HH:mm')}">2026-10-10</span></span>
+                </div>
+            </header>
+
+            <div class="post-body">
+                <div class="post-gallery" th:if="${images != null and !images.isEmpty()}"
+                     th:classappend="${images.size() == 1} ? 'single'">
+                    <img th:each="src : ${images}" th:src="${src}" alt="첨부 사진">
+                </div>
+
+                <dl class="post-facts">
+                    <div class="post-fact">
+                        <i data-lucide="map-pin" class="ico"></i>
+                        <div><dt>지역 · 장소</dt><dd th:text="${postDto.companionPostLocation ?: '-'}">부산 해운대</dd></div>
+                    </div>
+                    <div class="post-fact">
+                        <i data-lucide="calendar-range" class="ico"></i>
+                        <div><dt>여행 일정</dt>
+                            <dd th:text="${postDto.companionPostStartDate != null} ? ${postDto.companionPostStartDate} + ' ~ ' + ${postDto.companionPostEndDate} : '미정'">2026-10-10 ~ 2026-10-12</dd></div>
+                    </div>
+                    <div class="post-fact">
+                        <i data-lucide="users" class="ico"></i>
+                        <div><dt>모집 인원</dt>
+                            <dd th:text="${postDto.companionPostPeople != null} ? ${postDto.companionPostPeople} + '명' : '-'">2명</dd></div>
+                    </div>
+                </dl>
+
+                <div class="post-content" th:text="${postDto.companionPostContent}">여행 내용</div>
+            </div>
+
+            <div class="post-reactions" data-widget="reactions" data-type="COMPANION"
+                 th:attr="data-id=${postDto.companionPostId}"></div>
+
+            <footer class="post-foot">
+                <a th:href="@{/companion/list}" class="btn btn-line">
+                    <i data-lucide="list" class="ico"></i>목록
+                </a>
+
+                <div class="owner-actions"
+                     th:if="${loginMemberId != null and loginMemberId == postDto.companionPostMemberId}">
+                    <a th:href="@{/companion/update/{id}(id=${postDto.companionPostId})}" class="btn btn-line">
+                        <i data-lucide="pencil" class="ico"></i>수정
+                    </a>
+                    <form th:action="@{/companion/delete}" method="post" class="inline-form"
+                          onsubmit="return confirm('이 모집글을 삭제할까요? 삭제하면 되돌릴 수 없어요.');">
+                        <input type="hidden" name="companionPostId" th:value="${postDto.companionPostId}">
+                        <button type="submit" class="btn btn-danger-ghost">
+                            <i data-lucide="trash-2" class="ico"></i>삭제
+                        </button>
+                    </form>
+                </div>
+            </footer>
+        </article>
+
+        <section class="card post-comments">
+            <div data-widget="comments" data-type="COMPANION" th:attr="data-id=${postDto.companionPostId}"></div>
+        </section>
+
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script type="module" th:src="@{/js/dist/board.js}"></script>
+<th:block th:replace="~{fragments/board :: icons}"></th:block>
+</body>
+</html>

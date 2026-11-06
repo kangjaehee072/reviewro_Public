@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('마이페이지')}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReviewRo - 마이페이지</title>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between bg-slate-100">
+
+<!-- 1. Nav / Header 영역 -->
+<header th:replace="~{fragments/layout :: header('mypage')}"></header>
+
+<!-- Main Dashboard Container -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-1 space-y-6">
+
+    <!-- 성공 메시지 알림 (원래 코드 기능 반영) -->
+    <div th:if="${successMessage}" class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-2xl text-xs font-semibold shadow-sm flex items-center justify-between">
+        <span th:text="${successMessage}">성공 메시지</span>
+    </div>
+
+    <!-- 좌우 2컬럼 레이아웃 -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+        <!-- ==================== [좌측 사이드바] 프로필 및 회원 정보 ==================== -->
+        <div class="lg:col-span-1 space-y-4">
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col items-center text-center space-y-4">
+
+                <!-- 프로필 사진 -->
+                <div class="relative group">
+                    <div class="w-28 h-28 rounded-full overflow-hidden bg-slate-100 border-2 border-blue-500/30 flex items-center justify-center shadow-inner">
+                        <i data-lucide="user" class="w-12 h-12 text-slate-400"></i>
+                    </div>
+                    <a href="#" class="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-md hover:bg-blue-700 transition-colors">
+                        <i data-lucide="camera" class="w-4 h-4"></i>
+                    </a>
+                </div>
+
+                <!-- 회원 닉네임 및 이메일 (데이터 바인딩) -->
+                <div>
+                    <h2 class="font-bold text-lg text-slate-900" th:text="${loginMember.memberNickname} + ' 님'">닉네임 님</h2>
+                    <p class="text-xs text-slate-400 mt-0.5" th:text="${loginMember.memberEmail}">email@example.com</p>
+                </div>
+
+                <!-- 내 정보 수정하기 / 고객 상담 -->
+                <div class="w-full pt-2 border-t border-slate-100 flex items-center justify-center gap-2">
+                    <a th:href="@{/mypage/edit}" class="flex-1 py-2 px-3 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200 flex items-center justify-center gap-1.5 transition-colors">
+                        <i data-lucide="settings" class="w-3.5 h-3.5 text-slate-500"></i>
+                        <span>정보 수정</span>
+                    </a>
+                    <a href="#" class="flex-1 py-2 px-3 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200 flex items-center justify-center gap-1.5 transition-colors">
+                        <i data-lucide="headphones" class="w-3.5 h-3.5 text-slate-500"></i>
+                        <span>고객 상담</span>
+                    </a>
+                </div>
+
+                <!-- 회원 상세 정보 박스 (원래 코드의 loginMember 필드 반영) -->
+                <div class="w-full bg-slate-50 rounded-xl p-3.5 border border-slate-100 text-xs text-left space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400 font-medium">아이디</span>
+                        <span class="text-slate-700 font-semibold" th:text="${loginMember.memberUserId}">userid</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400 font-medium">연락처</span>
+                        <span class="text-slate-700 font-semibold" th:text="${loginMember.memberPhone} ?: '-'">-</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-400 font-medium">주소</span>
+                        <span class="text-slate-700 font-semibold truncate max-w-[140px]" th:text="${loginMember.memberAddress} ?: '-'">-</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ==================== [우측 메인 콘텐츠] 다음 여행 + 내 기록 ==================== -->
+        <div class="lg:col-span-3 space-y-8">
+
+            <!-- 인사 -->
+            <div>
+                <p class="text-sm font-semibold text-slate-400" th:text="${#temporals.format(today, 'M월 d일 EEEE')}">10월 25일 일요일</p>
+                <h1 class="text-[28px] leading-tight font-bold tracking-tight text-slate-900 mt-1"
+                    th:text="${loginMember.memberNickname} + '님의 여행'">Mr.Park님의 여행</h1>
+            </div>
+
+            <!-- 다음 여행: 탑승권 -->
+            <a th:if="${nextTrip != null}" th:href="@{/mypage/plans/read/{id}(id=${nextTrip.planId})}"
+               class="group grid grid-cols-1 md:grid-cols-[1fr_220px] rounded-[28px] overflow-hidden shadow-[0_12px_32px_rgba(30,41,59,.10)] hover:shadow-[0_18px_44px_rgba(30,41,59,.16)] hover:-translate-y-0.5 transition-all duration-300">
+                <div class="p-8 text-white bg-gradient-to-br from-sky-500 via-blue-600 to-indigo-700">
+                    <div class="flex items-center gap-2 text-[13px] font-semibold text-white/70">
+                        <i data-lucide="plane" class="w-4 h-4"></i>
+                        <span th:text="${nextTrip.traveling} ? '지금 여행 중' : '다음 여행'">다음 여행</span>
+                    </div>
+                    <h2 class="text-[30px] leading-tight font-bold tracking-tight mt-3" th:text="${nextTrip.title}">부산 2박 3일</h2>
+                    <div class="flex items-end gap-6 mt-8">
+                        <div>
+                            <div class="text-[11px] font-semibold tracking-widest text-white/60">출발</div>
+                            <div class="text-xl font-bold mt-0.5" th:text="${#temporals.format(nextTrip.start, 'M.d (E)')}">11.2 (월)</div>
+                        </div>
+                        <div class="flex-1 flex items-center gap-2 pb-2">
+                            <span class="flex-1 border-t border-dashed border-white/40"></span>
+                            <span class="text-[12px] font-semibold text-white/80" th:text="${nextTrip.days} + '일'">3일</span>
+                            <span class="flex-1 border-t border-dashed border-white/40"></span>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-[11px] font-semibold tracking-widest text-white/60">도착</div>
+                            <div class="text-xl font-bold mt-0.5" th:text="${#temporals.format(nextTrip.end, 'M.d (E)')}">11.4 (수)</div>
+                        </div>
+                    </div>
+                    <p class="text-[13px] text-white/75 mt-6 truncate"
+                       th:text="${#lists.isEmpty(nextTrip.places)} ? '아직 담은 장소가 없어요. 장소를 추가해 보세요' : ${#strings.listJoin(nextTrip.places, ' · ')}">해운대 · 광안리 · 감천문화마을</p>
+                </div>
+                <!-- 탑승권 절취선: 왼쪽 테두리를 점선으로 -->
+                <div class="bg-white p-8 flex md:flex-col justify-between items-center md:items-start gap-4 border-t-2 md:border-t-0 md:border-l-2 border-dashed border-slate-200">
+                    <div>
+                        <div class="text-[11px] font-semibold tracking-widest text-slate-400">남은 날</div>
+                        <div class="text-[44px] leading-none font-bold tracking-tight text-slate-900 mt-2" th:text="${nextTrip.dDay}">D-8</div>
+                    </div>
+                    <div class="md:w-full">
+                        <div class="text-[11px] font-semibold tracking-widest text-slate-400">담은 장소</div>
+                        <div class="text-lg font-bold text-slate-900 mt-0.5" th:text="${nextTrip.placeCount} + '곳'">6곳</div>
+                        <div class="hidden md:flex items-center gap-1 text-[13px] font-semibold text-blue-600 mt-5">
+                            일정 보기 <i data-lucide="chevron-right" class="w-4 h-4 group-hover:translate-x-0.5 transition-transform"></i>
+                        </div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- 다음 여행이 없을 때 -->
+            <div th:if="${nextTrip == null}"
+                 class="rounded-[28px] bg-white p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-[0_12px_32px_rgba(30,41,59,.06)]">
+                <div class="flex items-center gap-5">
+                    <div class="w-14 h-14 rounded-[18px] bg-gradient-to-br from-sky-400 to-blue-600 text-white flex items-center justify-center shrink-0">
+                        <i data-lucide="plane" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold tracking-tight text-slate-900">다가오는 여행이 없어요</h2>
+                        <p class="text-sm text-slate-500 mt-1">날짜를 정하면 여기에 탑승권처럼 남은 날을 보여 드려요</p>
+                    </div>
+                </div>
+                <a th:href="@{/mypage/plans/insert}"
+                   class="shrink-0 px-5 py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors text-center">여행 계획 만들기</a>
+            </div>
+
+            <!-- 내 기록: 설정 앱처럼 묶은 목록 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <section>
+                    <h3 class="px-4 mb-2 text-[13px] font-semibold text-slate-500">내 여행</h3>
+                    <div class="bg-white rounded-[20px] overflow-hidden divide-y divide-slate-100 shadow-[0_1px_2px_rgba(30,41,59,.04)]">
+                        <a th:href="@{/mypage/travelplan}" class="flex items-center gap-3.5 px-4 py-3.5 hover:bg-slate-50 transition-colors">
+                            <span class="w-9 h-9 rounded-[10px] bg-gradient-to-br from-sky-400 to-blue-600 text-white flex items-center justify-center shrink-0"><i data-lucide="calendar-days" class="w-[18px] h-[18px]"></i></span>
+                            <span class="flex-1 min-w-0"><b class="block text-[15px] font-semibold text-slate-900">여행 계획</b><small class="block text-[13px] text-slate-400 truncate">일차별 일정과 담은 장소</small></span>
+                            <span class="text-[15px] text-slate-400 tabular-nums" th:text="${summary.travelPlans}">0</span>
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                        </a>
+                        <a th:href="@{/location#bookmarks}" class="flex items-center gap-3.5 px-4 py-3.5 hover:bg-slate-50 transition-colors">
+                            <span class="w-9 h-9 rounded-[10px] bg-gradient-to-br from-amber-300 to-orange-500 text-white flex items-center justify-center shrink-0"><i data-lucide="star" class="w-[18px] h-[18px]"></i></span>
+                            <span class="flex-1 min-w-0"><b class="block text-[15px] font-semibold text-slate-900">저장한 장소</b>
+                                <small class="block text-[13px] text-slate-400 truncate"
+                                       th:text="${#lists.isEmpty(summary.recentBookmarks)} ? '지도에서 별을 눌러 모아 보세요' : ${#strings.listJoin(summary.recentBookmarks, ', ')}">경복궁, 남산서울타워</small></span>
+                            <span class="text-[15px] text-slate-400 tabular-nums" th:text="${summary.bookmarks}">0</span>
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                        </a>
+                        <a th:href="@{/contents/photomap}" class="flex items-center gap-3.5 px-4 py-3.5 hover:bg-slate-50 transition-colors">
+                            <span class="w-9 h-9 rounded-[10px] bg-gradient-to-br from-emerald-400 to-teal-600 text-white flex items-center justify-center shrink-0"><i data-lucide="images" class="w-[18px] h-[18px]"></i></span>
+                            <span class="flex-1 min-w-0"><b class="block text-[15px] font-semibold text-slate-900">포토맵</b><small class="block text-[13px] text-slate-400 truncate">지도 위에 남긴 사진과 추억</small></span>
+                            <span class="text-[15px] text-slate-400 tabular-nums" th:text="${summary.photoMaps}">0</span>
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                        </a>
+                    </div>
+                </section>
+
+                <section>
+                    <h3 class="px-4 mb-2 text-[13px] font-semibold text-slate-500">내 활동</h3>
+                    <div class="bg-white rounded-[20px] overflow-hidden divide-y divide-slate-100 shadow-[0_1px_2px_rgba(30,41,59,.04)]">
+                        <a th:href="@{/review/list}" class="flex items-center gap-3.5 px-4 py-3.5 hover:bg-slate-50 transition-colors">
+                            <span class="w-9 h-9 rounded-[10px] bg-gradient-to-br from-rose-400 to-pink-600 text-white flex items-center justify-center shrink-0"><i data-lucide="pen-line" class="w-[18px] h-[18px]"></i></span>
+                            <span class="flex-1 min-w-0"><b class="block text-[15px] font-semibold text-slate-900">작성한 리뷰</b><small class="block text-[13px] text-slate-400 truncate">다녀온 곳의 후기</small></span>
+                            <span class="text-[15px] text-slate-400 tabular-nums" th:text="${summary.reviews}">0</span>
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                        </a>
+                        <a th:href="@{/freeboard/list}" class="flex items-center gap-3.5 px-4 py-3.5 hover:bg-slate-50 transition-colors">
+                            <span class="w-9 h-9 rounded-[10px] bg-gradient-to-br from-violet-400 to-purple-600 text-white flex items-center justify-center shrink-0"><i data-lucide="message-circle" class="w-[18px] h-[18px]"></i></span>
+                            <span class="flex-1 min-w-0"><b class="block text-[15px] font-semibold text-slate-900">작성한 글</b><small class="block text-[13px] text-slate-400 truncate">자유게시판 · 동행</small></span>
+                            <span class="text-[15px] text-slate-400 tabular-nums" th:text="${summary.posts}">0</span>
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                        </a>
+                        <a th:href="@{/tripplan/list}" class="flex items-center gap-3.5 px-4 py-3.5 hover:bg-slate-50 transition-colors">
+                            <span class="w-9 h-9 rounded-[10px] bg-gradient-to-br from-slate-500 to-slate-700 text-white flex items-center justify-center shrink-0"><i data-lucide="share-2" class="w-[18px] h-[18px]"></i></span>
+                            <span class="flex-1 min-w-0"><b class="block text-[15px] font-semibold text-slate-900">공유한 일정</b>
+                                <small class="block text-[13px] text-slate-400 truncate" th:text="'다른 여행자가 ' + ${summary.tripPlanShares} + '번 퍼갔어요'">다른 여행자가 0번 퍼갔어요</small></span>
+                            <span class="text-[15px] text-slate-400 tabular-nums" th:text="${summary.tripPlans}">0</span>
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
+                        </a>
+                    </div>
+                </section>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</main>
+
+<!-- 3. Footer 영역 -->
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<!-- Script Initialization -->
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>

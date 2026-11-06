@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('사주팔자')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('contents')}"></header>
+
+<main class="main">
+    <div class="wrap">
+        <div id="saju-root"></div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<script th:src="|//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoKey}&autoload=false|"></script>
+<script type="module" th:src="@{/js/dist/saju.js}"></script>
+</body>
+</html>

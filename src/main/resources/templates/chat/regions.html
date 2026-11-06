@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('지역 톡방')}"></head>
+<link rel="stylesheet" th:href="@{/css/board.css}">
+<body>
+<header th:replace="~{fragments/layout :: header('community')}"></header>
+
+<main class="main board board-chat">
+    <div class="wrap">
+
+        <section class="board-hero">
+            <div class="board-hero-icon"><i data-lucide="messages-square" class="ico ico-lg"></i></div>
+            <div class="board-hero-text">
+                <span class="board-eyebrow">지역 톡방</span>
+                <h1>어디로 떠나세요?</h1>
+                <p>지역을 고르면 그곳으로 가는 사람들이 만든 톡방이 모여 있어요</p>
+            </div>
+        </section>
+
+        <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+
+        <div class="chat-regions">
+            <a th:each="r : ${regions}" class="chat-region"
+               th:href="@{/chat/region/{region}(region=${r.name()})}">
+                <span class="chat-region-name" th:text="${r.label}">서울</span>
+                <span class="chat-region-count">
+                    <i data-lucide="message-circle" class="ico"></i>톡방 <b th:text="${roomCounts.get(r)}">0</b>개
+                </span>
+            </a>
+        </div>
+
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/board :: icons}"></th:block>
+</body>
+</html>

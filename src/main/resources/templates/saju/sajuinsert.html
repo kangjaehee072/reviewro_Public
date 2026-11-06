@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('사주 등록')}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReviewRo - 사주 정보 등록</title>
+
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between bg-slate-100">
+
+<!-- 1. Nav / Header 영역 -->
+<header th:replace="~{fragments/layout :: header('contents')}"></header>
+
+<!-- Main Container (사이드바 & 메인 영역 분리) -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-1">
+    <div class="flex flex-col lg:flex-row items-start gap-6">
+
+        <!-- ==================== [좌측 사이드바] (사주팔자 관리 메뉴 활성화) ==================== -->
+        <aside th:replace="~{fragments/admin-menu :: menu('saju')}"></aside>
+
+        <!-- ==================== [우측 메인 콘텐츠 영역] ==================== -->
+        <section class="flex-1 w-full space-y-6">
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
+                <!-- 페이지 타이틀 -->
+                <div class="pb-4 border-b border-slate-100">
+                    <h1 class="text-xl font-bold text-slate-900">사주 정보 등록</h1>
+                    <p class="text-xs text-slate-500 mt-0.5">생년월일과 태어난 시간을 입력하여 사주 운세 데이터를 등록합니다.</p>
+                </div>
+
+                <!-- 에러 메시지 알림 -->
+                <div th:if="${errorMessage}" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-xs font-semibold shadow-sm" th:text="${errorMessage}"></div>
+
+                <!-- 폼 시작 (기존 바인딩 유지) -->
+                <form th:action="@{/sajuinsert}" th:object="${sajuDTO}" method="post" class="space-y-6 text-xs">
+
+                    <!-- 와이어프레임 반영: 2블록으로 분할 (화면이 줄어들면 세로로 나열) -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                        <!-- 블록 1: 기본 인적 사항 (이름, 성별) -->
+                        <div class="space-y-4 bg-slate-50/50 p-5 rounded-xl border border-slate-100 flex flex-col justify-between">
+                            <div class="space-y-4">
+                                <h3 class="font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                                    <i data-lucide="user" class="w-4 h-4 text-purple-600"></i> 기본 인적 사항
+                                </h3>
+
+                                <!-- 이름 -->
+                                <div class="space-y-1.5">
+                                    <label for="sajuName" class="block font-semibold text-slate-700">
+                                        이름 <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" id="sajuName" th:field="*{sajuName}" placeholder="이름 입력" required
+                                           class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-purple-500">
+                                </div>
+
+                                <!-- 성별 -->
+                                <div class="space-y-1.5">
+                                    <label for="sajuGender" class="block font-semibold text-slate-700">
+                                        성별 <span class="text-red-500">*</span>
+                                    </label>
+                                    <select id="sajuGender" th:field="*{sajuGender}" required
+                                            class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-purple-500">
+                                        <option value="">성별 선택</option>
+                                        <option value="남성">남성</option>
+                                        <option value="여성">여성</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="text-[11px] text-slate-400 pt-2">
+                                * 정확한 운세 분석을 위해 기본 정보를 올바르게 입력해 주세요.
+                            </div>
+                        </div>
+
+                        <!-- 블록 2: 사주 출생 정보 (생년월일, 음/양력, 태어난 시간) -->
+                        <div class="space-y-4 bg-slate-50/50 p-5 rounded-xl border border-slate-100 flex flex-col justify-between">
+                            <div class="space-y-4">
+                                <h3 class="font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                                    <i data-lucide="calendar" class="w-4 h-4 text-purple-600"></i> 출생 일시 정보
+                                </h3>
+
+                                <!-- 생년월일 & 음양력 -->
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div class="space-y-1.5">
+                                        <label for="sajuBirthDate" class="block font-semibold text-slate-700">
+                                            생년월일 <span class="text-red-500">*</span>
+                                        </label>
+                                        <input type="date" id="sajuBirthDate" th:field="*{sajuBirthDate}" required
+                                               class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-purple-500">
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <label for="sajuLunar" class="block font-semibold text-slate-700">음/양력</label>
+                                        <select id="sajuLunar" th:field="*{sajuLunar}"
+                                                class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-purple-500">
+                                            <option value="false">양력</option>
+                                            <option value="true">음력</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- 태어난 시간 -->
+                                <div class="space-y-1.5">
+                                    <label for="sajuBirthTime" class="block font-semibold text-slate-700">태어난 시간</label>
+                                    <select id="sajuBirthTime" th:field="*{sajuBirthTime}"
+                                            class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-purple-500">
+                                        <option value="">시간 모름 / 미선택</option>
+                                        <option value="자시 (23:30 ~ 01:29)">자시 (23:30 ~ 01:29)</option>
+                                        <option value="축시 (01:30 ~ 03:29)">축시 (01:30 ~ 03:29)</option>
+                                        <option value="인시 (03:30 ~ 05:29)">인시 (03:30 ~ 05:29)</option>
+                                        <option value="묘시 (05:30 ~ 07:29)">묘시 (05:30 ~ 07:29)</option>
+                                        <option value="진시 (07:30 ~ 09:29)">진시 (07:30 ~ 09:29)</option>
+                                        <option value="사시 (09:30 ~ 11:29)">사시 (09:30 ~ 11:29)</option>
+                                        <option value="오시 (11:30 ~ 13:29)">오시 (11:30 ~ 13:29)</option>
+                                        <option value="미시 (13:30 ~ 15:29)">미시 (13:30 ~ 15:29)</option>
+                                        <option value="신시 (15:30 ~ 17:29)">신시 (15:30 ~ 17:29)</option>
+                                        <option value="유시 (17:30 ~ 19:29)">유시 (17:30 ~ 19:29)</option>
+                                        <option value="술시 (19:30 ~ 21:29)">술시 (19:30 ~ 21:29)</option>
+                                        <option value="해시 (21:30 ~ 23:29)">해시 (21:30 ~ 23:29)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- 하단 버튼 영역 -->
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-2">
+                        <a th:href="@{/sajulist}" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-colors">취소</a>
+                        <button type="submit" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl shadow-md transition-all">등록</button>
+                    </div>
+
+                </form>
+
+            </div>
+
+        </section>
+
+    </div>
+</main>
+
+<!-- Footer 영역 -->
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<!-- Script Initialization -->
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>

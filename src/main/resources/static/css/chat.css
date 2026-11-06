@@ -1,0 +1,401 @@
+/* =========================================================
+   지역 톡방 (chat/regions, chat/list, chat/room)
+   머리·버튼·빈 목록은 board.css, 말풍선·입력줄은 style.css 의 .chat-* 를 쓴다
+   ========================================================= */
+
+/* board.css 의 .board 보다 먼저 불러와지므로 두 클래스로 이긴다 */
+.board.board-chat { --board-accent: #0EA5A4; --board-accent-bg: #E6FAF8; --board-accent-text: #0F766E; }
+
+/* ===== 지역 고르기 ===== */
+.chat-regions {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+}
+
+.chat-region {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 18px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    transition: border-color .12s, transform .12s;
+}
+
+.chat-region:hover {
+    border-color: var(--board-accent);
+    transform: translateY(-2px);
+}
+
+.chat-region-name { font-size: 17px; font-weight: 800; }
+
+.chat-region-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-2);
+    font-size: var(--fs-caption);
+}
+
+.chat-region-count b { color: var(--board-accent-text); }
+
+/* ===== 톡방 목록 ===== */
+.chat-create {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding: 16px;
+}
+
+.chat-create input {
+    flex: 1;
+    min-width: 0;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+}
+
+.chat-create input:focus { outline: 0; border-color: var(--board-accent); }
+
+.chat-rooms {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+}
+
+.chat-room-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    transition: border-color .12s;
+}
+
+.chat-room-card:hover { border-color: var(--board-accent); }
+
+.chat-room-name {
+    font-size: 16px;
+    font-weight: 700;
+    word-break: break-word;
+}
+
+.chat-room-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    color: var(--text-3);
+    font-size: var(--fs-caption);
+}
+
+/* 접속 인원 (초록 점) */
+.chat-online {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--board-accent-text);
+    font-size: var(--fs-caption);
+    font-weight: 600;
+}
+
+.chat-online::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #22C55E;
+}
+
+/* ===== 톡방 안 ===== */
+.chat-room .chat-log { height: 520px; }
+
+.chat-room .chat-item { max-width: 82%; }
+.chat-room .chat-item.mine { align-self: flex-end; align-items: flex-end; }
+.chat-room .chat-item.mine .chat-msg { background: var(--board-accent); color: #fff; }
+.chat-room .chat-item .chat-meta { justify-content: flex-start; }
+
+.chat-status {
+    color: var(--text-3);
+    font-size: var(--fs-caption);
+}
+
+.chat-status.off { color: #E5484D; }
+
+@media (max-width: 600px) {
+    .chat-create { flex-direction: column; }
+    .chat-room .chat-log { height: 60vh; }
+}
+
+/* =========================================================
+   여행 그룹 (group/list, group/read, group/plan)
+   왼쪽 내용 + 오른쪽 그룹 채팅. 좁으면 채팅이 아래로 내려간다
+   ========================================================= */
+.board.board-group { --board-accent: #6366F1; --board-accent-bg: #EEF0FF; --board-accent-text: #4338CA; }
+
+.group-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 16px;
+    align-items: start;
+}
+
+.group-block { margin-bottom: 16px; }
+
+/* 그룹 목록: 만들기 | 코드로 참여 */
+.group-start { display: grid; grid-template-columns: 3fr 2fr; gap: 12px; }
+.group-start .highlight { border-color: var(--board-accent); box-shadow: 0 0 0 3px var(--board-accent-bg); }
+
+@media (max-width: 760px) {
+    .group-start { grid-template-columns: 1fr; }
+}
+.group-share { border-top: 1px solid var(--border); }
+
+.group-main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+.group-chat { position: sticky; top: 84px; }
+.group-chat .chat-log { height: 460px; }
+.group-chat .chat-item { max-width: 88%; }
+.group-chat .chat-item.mine { align-self: flex-end; align-items: flex-end; }
+.group-chat .chat-item.mine .chat-msg { background: var(--board-accent); color: #fff; }
+.group-chat .chat-item .chat-meta { justify-content: flex-start; }
+
+.group-chat-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 700;
+}
+
+.group-section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 700;
+}
+
+.group-chat-head > span { display: inline-flex; align-items: center; gap: 6px; }
+
+.group-section-head small { color: var(--text-3); font-weight: 500; }
+
+/* 한 줄 입력 + 버튼 (초대, 공유, 그룹 만들기) */
+.group-inline-form {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+}
+
+.group-inline-form input,
+.group-inline-form select {
+    flex: 1;
+    min-width: 0;
+    height: 38px;
+    padding: 0 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+}
+
+.group-inline-form input:focus,
+.group-inline-form select:focus { outline: 0; border-color: var(--board-accent); }
+
+/* 초대 입력칸 위에 뜨는 회원 검색 목록 */
+.group-invite-form { position: relative; }
+
+.group-suggest {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: calc(100% - 6px);
+    z-index: 20;
+    margin: 0;
+    padding: 6px;
+    list-style: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .14);
+}
+
+.group-suggest button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
+}
+
+.group-suggest button:hover { background: var(--board-accent-bg); }
+.group-suggest strong { font-weight: 700; }
+.group-suggest span { color: var(--text-3); font-size: var(--fs-caption); }
+.group-suggest em { margin-left: auto; color: var(--board-accent-text); font-size: var(--fs-caption); font-style: normal; font-weight: 700; }
+.group-suggest .empty { padding: 8px 10px; color: var(--text-3); font-size: var(--fs-caption); }
+
+/* 초대코드 줄 */
+.group-code {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    font-size: var(--fs-body-sm);
+}
+
+.group-code code {
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    background: var(--board-accent-bg);
+    color: var(--board-accent-text);
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.group-code #genCode { margin-left: auto; }
+
+/* 화면 아래 잠깐 뜨는 알림 */
+.group-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 28px;
+    z-index: 100;
+    transform: translateX(-50%);
+    padding: 10px 18px;
+    border-radius: var(--radius-pill);
+    background: #1E293B;
+    color: #fff;
+    font-size: var(--fs-body-sm);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .2);
+}
+
+.group-toast.error { background: #E5484D; }
+
+/* 구성원 칩 */
+.group-members {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 14px 16px 4px;
+}
+
+.group-member {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px 5px 5px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    font-size: var(--fs-body-sm);
+}
+
+.group-member img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
+.group-member.invited { opacity: .55; border-style: dashed; }
+.group-member .tag { color: var(--board-accent-text); font-size: var(--fs-caption); font-weight: 700; }
+
+/* 공유된 계획 줄 */
+.group-plan {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-top: 1px solid var(--border);
+}
+
+.group-plan:first-child { border-top: 0; }
+.group-plan a.title { flex: 1; min-width: 0; }
+.group-plan a.title:hover strong { color: var(--board-accent-text); }
+.group-plan strong { display: block; font-weight: 700; word-break: break-word; }
+.group-plan span { color: var(--text-3); font-size: var(--fs-caption); }
+.group-empty { padding: 28px 16px; text-align: center; color: var(--text-3); font-size: var(--fs-body-sm); }
+
+/* 그룹 목록 카드 */
+.group-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+}
+
+.group-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    transition: border-color .12s;
+}
+
+.group-card:hover { border-color: var(--board-accent); }
+.group-card strong { font-size: 16px; word-break: break-word; }
+.group-card span { color: var(--text-3); font-size: var(--fs-caption); }
+
+.group-invite {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-top: 1px solid var(--border);
+}
+
+.group-invite:first-of-type { border-top: 0; }
+.group-invite .text { flex: 1; min-width: 0; }
+.group-invite form { display: inline; }
+
+/* 공유 계획 상세: 일차별 일정 */
+.plan-day { padding: 16px; border-top: 1px solid var(--border); }
+.plan-day:first-child { border-top: 0; }
+.plan-day h3 { margin-bottom: 10px; font-size: 15px; font-weight: 800; }
+.plan-day h3 small { margin-left: 6px; color: var(--text-3); font-weight: 500; }
+
+.plan-stop {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+}
+
+.plan-stop .no {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    flex: none;
+    border-radius: 50%;
+    background: var(--board-accent-bg);
+    color: var(--board-accent-text);
+    font-size: var(--fs-caption);
+    font-weight: 700;
+}
+
+.plan-stop strong { display: block; font-weight: 700; }
+.plan-stop span { color: var(--text-3); font-size: var(--fs-caption); }
+
+@media (max-width: 960px) {
+    .group-layout { grid-template-columns: 1fr; }
+    .group-chat { position: static; }
+}

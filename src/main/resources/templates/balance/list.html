@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('여행 밸런스 게임')}"></head>
+<link rel="stylesheet" th:href="@{/css/board.css}">
+<body>
+<header th:replace="~{fragments/layout :: header('contents')}"></header>
+
+<main class="main">
+    <div class="wrap">
+
+        <div class="page-head">
+            <div>
+                <h1>여행 밸런스 게임</h1>
+                <p>둘 중 하나만 고른다면?</p>
+            </div>
+            <!-- 사용자 누구나 밸런스 게임을 등록할 수 있는 버튼 -->
+            <a th:href="@{/balance/insert}" class="btn btn-primary">✏️ 밸런스 게임 등록</a>
+        </div>
+
+        <div th:if="${message}" class="notice notice-ok" th:text="${message}"></div>
+        <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+
+        <!-- 밸런스 게임 목록 (.content 사용) -->
+        <a th:each="game : ${balanceGameList.content}" class="card"
+           th:href="@{/balance/read/{id}(id=${game.balanceGameId})}">
+            <div class="card-body">
+                <div class="row-between">
+                    <strong class="t-sub" th:text="${game.balanceGameTitle}">질문 내용</strong>
+                    <span class="badge badge-line">진행중</span>
+                </div>
+                <p class="hint balance-vs">
+                    <span th:text="'A. ' + ${game.balanceGameOptionA}">A</span>
+                    vs
+                    <span th:text="'B. ' + ${game.balanceGameOptionB}">B</span>
+                </p>
+            </div>
+        </a>
+
+        <!-- 데이터가 없을 때 -->
+        <div th:if="${#lists.isEmpty(balanceGameList.content)}" class="card">
+            <div class="empty">
+                <div class="empty-icon">⚖️</div>
+                <p>등록된 밸런스 게임이 없습니다.</p>
+            </div>
+        </div>
+
+        <!-- 페이징 네비게이션 영역 -->
+        <nav class="pager" th:if="${balanceGameList.totalPages > 1}"
+             th:with="blockSize=10,
+              start=${(balanceGameList.number / blockSize) * blockSize},
+              end=${((start + blockSize - 1) < balanceGameList.totalPages) ? (start + blockSize - 1) : (balanceGameList.totalPages - 1)}">
+
+            <a th:if="${!balanceGameList.first}"
+               th:href="@{/balance/list(page=${balanceGameList.number - 1})}">이전</a>
+            <span th:unless="${!balanceGameList.first}" class="off">이전</span>
+
+            <th:block th:each="i : ${#numbers.sequence(start, end)}">
+                <span th:if="${i == balanceGameList.number}" class="on" th:text="${i + 1}">1</span>
+                <a th:unless="${i == balanceGameList.number}"
+                   th:href="@{/balance/list(page=${i})}" th:text="${i + 1}">2</a>
+            </th:block>
+
+            <a th:if="${!balanceGameList.last}"
+               th:href="@{/balance/list(page=${balanceGameList.number + 1})}">다음</a>
+            <span th:unless="${!balanceGameList.last}" class="off">다음</span>
+        </nav>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

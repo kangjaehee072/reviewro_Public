@@ -1,0 +1,108 @@
+/* =========================================================
+   어드민 장소 등록 페이지 전용 레이아웃
+   지도를 꽉 채우고 그 위에 입력 패널을 띄우는 구조라
+   공용 .map-box / .map-foot / .list-form-module 과 값이 다르다.
+   공용 CSS 를 덮어쓰므로 style.css 다음에 로드된다.
+   ========================================================= */
+
+.list-layout {
+    display: grid;
+    gap: 16px;
+    align-items: start;
+}
+
+/* 지도를 고정 높이로 꽉 채운다 (공용은 높이 지정 없음) */
+.map-box {
+    height: 680px;
+}
+
+.map-box #map {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    color: var(--text-3);
+    font-size: var(--fs-subtext);
+}
+
+/* 지도 위에 떠 있는 알약형 안내바 (공용은 하단 고정 바) */
+.map-foot {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    z-index: 5;
+    justify-content: flex-start;
+    gap: 8px;
+    padding: 8px 12px;
+    border-top: 0;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, .9);
+    backdrop-filter: blur(4px);
+    box-shadow: var(--shadow-sm);
+}
+
+/* 지도 위 입력 패널 */
+.list-form-module {
+    width: 320px;
+    max-height: calc(100% - 32px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* ===== 좁은 화면: 지도 위에 겹치지 않고 세로로 쌓는다 ===== */
+@media (max-width: 960px) {
+    .map-box {
+        height: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .map-box #map {
+        height: 400px;
+    }
+
+    .map-foot {
+        position: static;
+        border-radius: 0;
+        box-shadow: none;
+        border-top: 1px solid var(--border);
+    }
+
+    .list-form-module {
+        position: static;
+        width: auto;
+        max-height: none;
+        box-shadow: none;
+        border-top: 1px solid var(--border);
+        border-radius: 0;
+    }
+}
+
+/* ===== 장소 목록 검색 + 페이징 ===== */
+.admin-search {
+    margin-bottom: 8px;
+}
+
+.admin-search-row {
+    display: flex;
+    gap: 6px;
+}
+
+.admin-search-row select {
+    flex: none;
+    width: 80px;
+}
+
+.admin-search-row input {
+    flex: 1;
+    min-width: 0;
+}
+
+.admin-search .pagination-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+}

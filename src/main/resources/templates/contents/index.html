@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('컨텐츠')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('contents')}"></header>
+
+<main class="main">
+    <div class="wrap">
+        <div class="page-head">
+            <div>
+                <h1>컨텐츠</h1>
+                <p>여행을 더 재밌게 만드는 리뷰로의 놀이터</p>
+            </div>
+        </div>
+
+        <div class="contents-grid">
+            <a th:href="@{/contents/photomap}" class="contents-card contents-nello">
+                <div class="contents-icon">🗺️</div>
+                <div class="entry-label">넬로와 함께</div>
+                <div class="contents-title">포토맵 만들기</div>
+                <p class="contents-desc">다녀온 시·군·구에 사진을 채워 나만의 대한민국 지도를 완성해요. 액자용 고해상도 PNG로 저장할 수 있어요.</p>
+                <span class="contents-more">시작하기 →</span>
+            </a>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

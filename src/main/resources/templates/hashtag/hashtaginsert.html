@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('해시태그 등록')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('contents')}"></header>
+
+<main class="main">
+    <div class="wrap">
+        <div class="form-page">
+
+            <div class="page-head">
+                <div>
+                    <h1>해시태그 등록</h1>
+                </div>
+            </div>
+
+            <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+
+            <div class="card">
+                <div class="card-body">
+                    <form th:action="@{/hashtaginsert}" method="post">
+
+                        <div class="field">
+                            <label for="hashTagName">해시태그 이름<span class="req">*</span></label>
+                            <input type="text" id="hashTagName" name="hashTagName" placeholder="예: #맛집" required>
+                        </div>
+
+                        <div class="field">
+                            <label for="hashTagCategory">카테고리<span class="req">*</span></label>
+                            <select id="hashTagCategory" name="hashTagCategory" required>
+                                <option value="">선택</option>
+                                <option value="음식점">음식점</option>
+                                <option value="카페/디저트">카페/디저트</option>
+                                <option value="자연/관광명소">자연/관광명소</option>
+                                <option value="숙박">숙박</option>
+                                <option value="문화/예술">문화/예술</option>
+                                <option value="액티비티/체험">액티비티/체험</option>
+                                <option value="축제/행사">축제/행사</option>
+                                <option value="쇼핑">쇼핑</option>
+                                <option value="교통/편의">교통/편의</option>
+                            </select>
+                        </div>
+
+                        <div class="form-actions">
+                            <a th:href="@{/hashtaglist}" class="btn btn-line">취소</a>
+                            <button type="submit" class="btn btn-primary">등록하기</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

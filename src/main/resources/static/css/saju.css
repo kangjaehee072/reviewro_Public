@@ -1,0 +1,495 @@
+/* =========================================================
+   사주팔자 페이지 전용
+   왼쪽: 일러스트 + 채팅 · 오른쪽: 탭(지도+추천목록 / 사주팔자)
+   추천 목록은 AI추천 페이지와 똑같이 지도 왼쪽에 붙여 띄운다
+   채팅 말풍선(.chat-*)과 카드·입력칸·버튼은 공용(style.css)을 그대로 쓴다
+   ========================================================= */
+
+/* ===== 레이아웃 ===== */
+/* 화면 높이에 맞춘다. 안쪽에서만 스크롤하고 페이지는 거의 안 늘어난다 */
+.sj {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 16px;
+    height: calc(100dvh - var(--app-chrome));
+    min-height: 560px;
+}
+
+/* ===== 왼쪽: 탭 + 지도(또는 사주팔자) ===== */
+.sj-main {
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+}
+
+/* 카드가 칸 높이를 꽉 쓰게 */
+.sj-main > .card-body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.sj-result {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex: 1;
+    min-height: 0;
+}
+
+/* 탭으로 바꿔 끼운다. 지우지 않고 가리기만 하므로 지도·채팅 상태가 산다 */
+.sj.tab-travel .sj-box { display: none; }
+.sj.tab-saju .sj-minimap { display: none; }
+
+/* ===== 가운데: 지도 ===== */
+/* 목록을 이 안에 띄우므로 기준점이 된다 */
+.sj-minimap {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    min-height: 280px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+}
+
+/* MapView 가 그리는 <div id="map">.
+   공용 style.css 의 #map 이 height:520px 을 박아두므로 여기서 다시 맞춰준다.
+   높이가 어긋나면 카카오가 보이지 않는 영역까지 지도로 쳐서
+   마커가 화면 가운데가 아니라 아래로 치우친다 */
+.sj-minimap #map {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+}
+
+/* ===== 지도 오른쪽에 붙는 추천 장소 목록 ===== */
+/* 오른쪽·위·아래를 0 으로 붙여 지도가 옆으로 비어져 나오지 않게 한다.
+   폭을 바꾸면 SajuApp.jsx 의 LIST_COVER 도 같이 바꿔야 한다 (마커 중심 보정값) */
+.sj-list {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    overflow-y: auto;
+    border-left: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+    transition: transform .22s ease;
+}
+
+/* 접힘. 지도 오른쪽 밖으로 밀어 두면 .sj-minimap 의 overflow:hidden 이 잘라 준다 */
+.sj-list.off {
+    transform: translateX(100%);
+}
+
+/* ===== 목록 접었다 펴는 손잡이 ===== */
+.sj-list-handle {
+    position: absolute;
+    top: 50%;
+    right: 300px;               /* 목록 왼쪽 끝에 붙는다 (.sj-list width 와 같아야 한다) */
+    z-index: 21;
+    width: 22px;
+    height: 56px;
+    padding: 0;
+    transform: translateY(-50%);
+    border: 1px solid var(--border);
+    border-right: 0;
+    border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+    background: var(--surface);
+    color: var(--text-2);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: right .22s ease, background .15s;
+}
+
+.sj-list-handle:hover {
+    background: var(--primary-bg);
+    color: var(--primary);
+}
+
+.sj-list-handle.off {
+    right: 0;
+}
+
+/* ===== 사주팔자 =====
+   명식은 참고 자료라 칸 높이를 억지로 채우지 않는다. 길면 여기서만 스크롤한다 */
+.sj-box {
+    flex: 0 1 auto;
+    min-width: 0;
+    min-height: 0;
+    padding: 16px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+/* ===== 왼쪽: 일러스트 + 채팅 ===== */
+/* 마크업은 본문 다음이지만 넓은 화면에선 왼쪽 칸으로 당긴다 */
+.sj-side {
+    order: -1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+    min-height: 0;
+}
+.sj-illust {
+    display: block;
+    flex: none;
+    /* 비율은 그대로 두고 줄인다 (높이는 auto 라 가로를 따라온다).
+       그림 파일은 위아래 여백을 잘라 둬서, 아래 채팅 칸이 그만큼 넓어진다 */
+    width: 81%;
+    margin: 0 auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+}
+
+/* 입력 전 말풍선 */
+.sj-bubble {
+    position: relative;
+    margin: 0;
+    padding: 14px 16px;
+    border-radius: var(--radius);
+    background: var(--primary-bg);
+    color: var(--primary-text);
+    font-size: var(--fs-body-sm);
+    line-height: 1.6;
+    text-align: center;
+}
+
+.sj-bubble::before {
+    content: "";
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 8px solid transparent;
+    border-top: 0;
+    border-bottom-color: var(--primary-bg);
+}
+
+/* 추천 받는 중 자리 */
+.sj-chat-wait {
+    padding: 24px 16px;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    font-size: var(--fs-subtext);
+    color: var(--text-3);
+    text-align: center;
+}
+
+/* AiChat inline 모드: 일러스트 아래에 폭을 꽉 채워 붙인다 */
+.sj-side .chat-inline {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+}
+
+/* 남는 높이를 채팅 기록이 다 먹는다 */
+.sj-side .chat-inline .chat-log {
+    flex: 1;
+    min-height: 0;
+    height: auto;
+}
+
+/* ===== 오른쪽: 결과 ===== */
+.sj-row {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 16px;
+}
+
+.sj-ai-text {
+    max-height: 320px;
+    overflow-y: auto;
+    font-size: var(--fs-body-sm);
+    line-height: 1.7;
+    color: var(--text-2);
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.sj-typing {
+    display: flex;
+    gap: 4px;
+    padding: 8px 0;
+}
+
+/* 지도가 남는 높이를 다 먹는다 */
+.sj-detail-btn {
+    margin-top: 16px;
+}
+
+.sj-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+/* ===== 공통 ===== */
+.sj-title {
+    margin: 0 0 12px;
+    font-size: var(--fs-sub);
+}
+
+/* 제목 + 초기화 버튼 */
+.sj-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.sj-head .sj-title {
+    margin: 0;
+}
+
+.sj-reset {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    background: var(--surface);
+    color: var(--text-2);
+    cursor: pointer;
+    transition: background .15s, color .15s;
+}
+
+.sj-reset:hover {
+    background: var(--primary-bg);
+    color: var(--primary);
+}
+
+.sj-note {
+    margin: 10px 0 0;
+    font-size: var(--fs-caption);
+    color: var(--text-3);
+    text-align: center;
+}
+
+/* ===== 오행 색 (글자 칸·막대·여행 박스가 같이 씀) ===== */
+.el-wood  { --el: #2E9E5B; --el-bg: #E3F5EA; }
+.el-fire  { --el: #E5484D; --el-bg: #FDECEC; }
+.el-earth { --el: #B27F00; --el-bg: #FFF4D6; }
+.el-metal { --el: #6B7684; --el-bg: #F0F2F5; }
+.el-water { --el: #1E3A8A; --el-bg: #E8EEFB; }
+
+/* ===== 입력 ===== */
+.field .sj-check {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 8px 0 0;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+/* ===== 명식 ===== */
+.sj-pillars {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.sj-pillar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.sj-label {
+    font-size: var(--fs-caption);
+    color: var(--text-3);
+}
+
+.sj-god {
+    min-height: 1.4em;
+    font-size: var(--fs-caption);
+    font-weight: 600;
+    color: var(--text-2);
+}
+
+.sj-char {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: var(--radius);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--el-bg);
+    color: var(--el);
+}
+
+.sj-hanja {
+    font-family: var(--font-saju);
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.sj-hangul {
+    margin-top: 3px;
+    font-size: var(--fs-caption);
+    font-weight: 600;
+}
+
+/* 시각 모름 → 시주 빈칸 */
+.sj-blank {
+    border: 1px dashed var(--border);
+    background: none;
+    font-size: 22px;
+    color: var(--text-3);
+}
+
+/* ===== 오행 막대 ===== */
+.sj-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+}
+
+.sj-bar {
+    display: grid;
+    grid-template-columns: 56px 1fr 20px;
+    align-items: center;
+    gap: 10px;
+    font-size: var(--fs-subtext);
+}
+
+.sj-bar-track {
+    height: 10px;
+    border-radius: var(--radius-pill);
+    background: var(--bg);
+    overflow: hidden;
+}
+
+.sj-bar-fill {
+    height: 100%;
+    border-radius: inherit;
+    background: var(--el);
+    transition: width .4s ease-out;
+}
+
+.sj-bar-count {
+    text-align: right;
+    font-weight: 600;
+    color: var(--text-2);
+}
+
+/* ===== 풀이 ===== */
+.sj-reading {
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+
+.sj-block + .sj-block {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+
+.sj-reading h4 {
+    margin: 8px 0 6px;
+    font-size: var(--fs-body);
+}
+
+.sj-reading p {
+    margin: 0;
+    font-size: var(--fs-body-sm);
+    line-height: 1.7;
+    color: var(--text-2);
+}
+
+.sj-trip {
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: var(--radius);
+    background: var(--el-bg);
+}
+
+.sj-trip strong {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--el);
+}
+
+
+/* 장소 패널이 좁아져도 버튼은 줄어들지 않는다 (주소 span 이 말줄임으로 흡수) */
+.sj-place .btn,
+.sj-place .bookmark-btn {
+    flex-shrink: 0;
+}
+
+/* ===== 좁은 화면: 칸을 나란히 못 두니 탭으로 바꿔 끼운다 ===== */
+/* 목록·채팅 탭은 SajuApp 이 좁을 때만 그린다 */
+@media (max-width: 1100px) {
+    .sj {
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(0, 1fr);
+    }
+
+    /* 접는 손잡이는 목록이 지도를 덮을 때만 쓸모가 있다 */
+    .sj-list-handle { display: none; }
+
+    /* 목록 탭: 지도 칸은 자리만 남기고 안쪽 지도를 끈다 (목록이 그 안에 들어 있다) */
+    .sj.tab-list #map { display: none; }
+
+    .sj.tab-list .sj-minimap {
+        border: 0;
+        background: none;
+    }
+
+    .sj.tab-list .sj-list,
+    .sj.tab-list .sj-list.off {
+        position: static;
+        width: auto;
+        height: 100%;
+        transform: none;
+        border: 0;
+        box-shadow: none;
+    }
+
+    .sj.tab-travel .sj-list,
+    .sj.tab-saju .sj-minimap,
+    .sj.tab-saju .sj-list { display: none; }
+
+    .sj.tab-saju .sj-box { display: block; }
+
+    /* 채팅 탭일 때만 오른쪽 칸을 보여주고, 그때는 왼쪽을 숨긴다 */
+    .sj-side { display: none; order: 0; }
+    .sj.tab-chat .sj-main { display: none; }
+    .sj.tab-chat .sj-side { display: flex; }
+
+    .sj-illust { max-width: 280px; margin: 0 auto; }
+
+    /* 사주 입력 전에는 탭이 없다. 폼과 강아지를 위아래로 같이 보여준다 */
+    .sj.sj-intro { height: auto; grid-template-rows: auto; }
+    .sj.sj-intro .sj-main { display: flex; }
+    .sj.sj-intro .sj-side { display: flex; }
+    .sj-row { grid-template-columns: 1fr; }
+}

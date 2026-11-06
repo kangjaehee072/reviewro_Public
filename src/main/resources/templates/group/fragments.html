@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<!-- 여행 그룹 공용 조각 -->
+
+<!-- 오른쪽 그룹 채팅 패널. model 에 group, messageList, myId, onlineCount 가 있어야 한다 -->
+<aside th:fragment="chatPanel" class="card group-chat">
+    <div class="group-chat-head">
+        <span><i data-lucide="messages-square" class="ico"></i> 그룹 채팅</span>
+        <span>
+            <span class="chat-online" id="onlineCount" th:text="${onlineCount} + '명 접속 중'">0명 접속 중</span>
+            <span class="chat-status" id="chatStatus">연결 중…</span>
+        </span>
+    </div>
+    <th:block th:replace="~{fragments/chat :: log}"></th:block>
+</aside>
+
+</html>

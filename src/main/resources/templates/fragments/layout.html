@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <title th:text="${title} + ' | 리뷰로'">리뷰로</title>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/modal.css}">
+    <!-- 페이지 전용 CSS. 컨트롤러가 model 에 pageCss 를 담으면 추가로 불러온다 -->
+    <link rel="stylesheet" th:if="${pageCss}" th:href="@{'/css/' + ${pageCss}}">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet"  th:href="@{/css/main.css}">
+</head>
+
+<body>
+
+<header th:fragment="header(active)" class="gnb">
+    <div class="wrap">
+        <a th:href="@{/}" class="gnb-logo"><img th:src="@{/img/logo.png}" alt=""><b>ReviewRo</b></a>
+        <nav class="gnb-menu" id="gnbMenu">
+            <div class="gnb-sub">
+                <a th:href="@{/location}" th:classappend="${active == 'location'} ? 'on'">여행·장소</a>                <div class="gnb-dropdown">
+                    <a th:href="@{/location#plans}">여행 계획 짜기</a>
+                    <a th:href="@{/location#place-list}">관광지 찾기</a>
+                    <a th:href="@{/location#bookmarks}">저장한 장소/코스</a>
+                </div>
+            </div>
+            <a th:href="@{/contents/ai}" th:classappend="${active == 'ai'} ? 'on'">AI 추천</a>
+            <div class="gnb-sub">
+                <a th:href="@{/community/dashboard}" th:classappend="${active == 'community'} ? 'on'">커뮤니티</a>                <div class="gnb-dropdown">
+                    <a th:href="@{/review/list}">리뷰 게시판</a>
+                    <a th:href="@{/freeboard/list}">자유게시판</a>
+                    <a th:href="@{/tripplan/list}">일정 템플릿 마켓</a>
+                    <a th:href="@{/companion/list}">같이갈래?</a>
+                    <a th:href="@{/chat}">지역 톡방</a>
+                    <a th:href="@{/admin/post/list}">공지·추천</a>
+                </div>
+            </div>
+            <div class="gnb-sub">
+                <a th:href="@{/contents/contentDashboard}" th:classappend="${active == 'contents'} ? 'on'">컨텐츠</a>                <div class="gnb-dropdown">
+                    <a th:href="@{/contents/photomap}">포토맵 그리기</a>
+                    <a th:href="@{/contents/saju}">오행여행</a>
+                    <a th:href="@{/challenge/roulette}">랜덤 챌린지</a>
+                    <a th:href="@{/balance/list}">여행 밸런스</a>
+                </div>
+            </div>
+            <!-- 관리자메뉴는 ADMIN·SUPERADMIN 에게만 -->
+            <div class="gnb-sub" th:if="${loginMember != null and loginMember.memberRole.name() != 'USER'}">
+                <a th:href="@{/admin}" th:classappend="${active == 'admin'} ? 'on'">관리자메뉴</a>
+                <div class="gnb-dropdown">
+                    <a th:href="@{/admin/members}">회원관리</a>
+                    <a th:href="@{/challengelist}">챌린지 관리</a>
+                    <a th:href="@{/admin/location}" th:classappend="${active == 'plan'} ? 'on'">장소등록</a>
+                    <a th:href="@{/admin/post/list}">게시판 관리</a>
+                    <a th:if="${loginMember != null and loginMember.memberRole.name() == 'SUPERADMIN'}"
+                       th:href="@{/admin/terms}">이용약관 수정</a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="gnb-user">
+            <th:block th:if="${loginMember == null}">
+                <a th:href="@{/login}" class="btn btn-sm btn-text" data-login-open>로그인</a>
+                <a th:href="@{/signup}" class="btn btn-sm btn-primary">회원가입</a>
+            </th:block>
+            <th:block th:if="${loginMember != null}">
+                <div class="gnb-profile" id="gnbProfile">
+                    <button type="button" class="gnb-profile-btn" id="gnbProfileBtn" aria-haspopup="true" aria-expanded="false">
+                        <img class="avatar" alt=""
+                             th:src="${loginMember.memberProfileImagePath != null} ? ${loginMember.memberProfileImagePath} : @{/img/default-profile.svg}">
+                        <span class="name" th:text="${loginMember.memberNickname}">닉네임</span>
+                        <span class="caret">▾</span>
+                    </button>
+                    <div class="gnb-dropdown" id="gnbDropdown" hidden>
+                        <a th:href="@{/mypage}">마이페이지</a>
+                        <a th:href="@{/groups}">내 여행 그룹</a>
+                        <a th:href="@{/mypage/edit}">개인정보 변경</a>
+                        <form th:action="@{/logout}" method="post">
+                            <button type="submit">로그아웃</button>
+                        </form>
+                    </div>
+                </div>
+            </th:block>
+        </div>
+
+        <!-- 좁은 화면에서만 보이는 메뉴 버튼. 누르면 위 gnb-menu 가 전체 패널로 펼쳐진다 (gnb.js) -->
+        <button type="button" class="gnb-toggle" id="gnbToggle"
+                aria-label="메뉴 열기" aria-controls="gnbMenu" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+</header>
+
+<footer th:fragment="footer" class="footer">
+    <div class="wrap">
+        <div class="footer-links">
+            <a href="#">서비스 소개</a>
+            <a th:href="@{/admin/post/list}">공지사항</a>
+            <a th:href="@{/terms}" th:data-terms-modal="@{/terms/modal}"><strong>개인정보처리방침</strong></a>
+            <a th:href="@{/terms}" th:data-terms-modal="@{/terms/modal}">이용약관</a>
+        </div>
+        <div>© 2026 ReviewRo. All rights reserved.</div>
+    </div>
+
+
+    <dialog id="loginModal" class="modal" th:if="${loginMember == null}">
+        <div class="modal-head">
+            <strong>로그인</strong>
+            <button type="button" class="modal-close" data-login-close aria-label="닫기">&times;</button>
+        </div>
+        <form id="loginForm" th:action="@{/login}" method="post" class="modal-body">
+            <div class="notice notice-error" id="loginError" hidden></div>
+            <div class="field">
+                <label for="modalUserId">아이디</label>
+                <input type="text" id="modalUserId" name="memberUserId" placeholder="아이디" required autocomplete="username">
+            </div>
+            <div class="field">
+                <label for="modalPassword">비밀번호</label>
+                <input type="password" id="modalPassword" name="memberPassword" placeholder="비밀번호" required autocomplete="current-password">
+            </div>
+            <div class="check-row">
+                <input type="checkbox" id="modalRememberMe" name="remember-me" value="true">
+                <label for="modalRememberMe">자동 로그인</label>
+            </div>
+            <button type="submit" class="btn btn-lg btn-primary btn-full">로그인</button>
+            <th:block th:replace="~{fragments/social :: buttons('간편 로그인')}"></th:block>
+            <p class="auth-foot">아직 계정이 없으신가요?<a th:href="@{/signup}">회원가입</a></p>
+            <!-- 아이디 회원 + 카카오 둘 다 가입한 사람용. 아이디로 로그인한 뒤 연동 화면으로 간다 -->
+            <p class="auth-link-account"><a th:href="@{/login(next='/account/link')}">계정 연동하기</a></p>
+        </form>
+    </dialog>
+
+    <script th:src="@{/js/modal.js}"></script>
+    <script th:src="@{/js/auth.js}"></script>
+    <script th:src="@{/js/gnb.js}"></script>
+    <script th:src="@{/js/terms-modal.js}"></script>
+</footer>
+
+</body>
+</html>

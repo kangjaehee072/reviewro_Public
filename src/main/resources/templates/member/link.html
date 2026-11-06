@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('계정 연동')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('')}"></header>
+
+<main class="main">
+    <div class="wrap">
+        <div class="auth">
+            <h1>계정 연동</h1>
+            <div class="card">
+                <div class="card-body">
+                    <div th:if="${successMessage}" class="notice notice-ok" th:text="${successMessage}"></div>
+                    <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+
+                    <p class="link-who">
+                        <strong th:text="${me.memberNickname}">닉네임</strong>
+                        <span th:text="${me.memberUserId}">아이디</span>
+                    </p>
+
+                    <!-- 소셜 전용 계정이 따로 있어 확인이 필요할 때 -->
+                    <div th:if="${conflict != null}" class="link-confirm">
+                        <p>
+                            이 <b th:text="${conflictLabel}">카카오</b> 계정으로 가입한 계정
+                            '<b th:text="${conflict.otherNickname}">닉네임</b>'이 따로 있어요.
+                        </p>
+                        <p class="hint">
+                            연동하면 앞으로 <span th:text="${conflictLabel}">카카오</span>로 로그인할 때 지금 계정으로 들어오고,
+                            '<span th:text="${conflict.otherNickname}">닉네임</span>' 계정으로는 더 이상 로그인할 수 없어요.
+                            그 계정으로 쓴 글은 그대로 남아요.
+                        </p>
+                        <div class="link-actions">
+                            <form th:action="@{/account/link/cancel}" method="post">
+                                <button type="submit" class="btn btn-line">취소</button>
+                            </form>
+                            <form th:action="@{/account/link/confirm}" method="post">
+                                <button type="submit" class="btn btn-primary">이 계정으로 연동</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <th:block th:if="${conflict == null}">
+                        <!-- 소셜로만 가입한 계정: 여기서는 연동할 게 없다 -->
+                        <p th:if="${me.social}" class="hint">
+                            소셜 로그인으로 가입한 계정이에요. 아이디·비밀번호로 가입한 계정이 따로 있다면,
+                            로그아웃한 뒤 그 계정으로 로그인해서 연동해 주세요.
+                        </p>
+
+                        <!-- 아이디 회원 + 이미 연동됨 -->
+                        <div th:if="${!me.social and linkedLabel != null}" class="link-row">
+                            <span><b th:text="${linkedLabel}">카카오</b> 계정이 연동돼 있어요.</span>
+                            <form th:action="@{/account/link/unlink}" method="post">
+                                <button type="submit" class="btn btn-sm btn-line">연동 해제</button>
+                            </form>
+                        </div>
+
+                        <!-- 아이디 회원 + 아직 연동 안 함 -->
+                        <th:block th:if="${!me.social and linkedLabel == null}">
+                            <p class="hint">
+                                연동하면 아이디·비밀번호 없이 소셜 계정으로도 이 계정에 로그인할 수 있어요.
+                            </p>
+                            <form th:if="${#lists.contains(linkable, 'kakao')}"
+                                  th:action="@{/account/link/kakao}" method="post" class="link-start">
+                                <button type="submit" class="social-btn social-kakao">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#000" d="M12 3C6.48 3 2 6.54 2 10.9c0 2.82 1.87 5.3 4.69 6.7l-.95 3.5c-.09.32.27.57.55.39l4.17-2.76c.5.06 1.02.1 1.54.1 5.52 0 10-3.54 10-7.93S17.52 3 12 3z"/></svg>
+                                    <span>카카오 계정 연동하기</span>
+                                </button>
+                            </form>
+                            <p th:if="${#lists.isEmpty(linkable)}" class="hint">지금은 연동할 수 있는 소셜 로그인이 없어요.</p>
+                        </th:block>
+                    </th:block>
+                </div>
+            </div>
+            <p class="auth-foot"><a th:href="@{/mypage}">마이페이지로</a></p>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

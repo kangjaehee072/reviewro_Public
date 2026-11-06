@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ko">
+<head th:replace="~{fragments/layout :: head('공지·추천')}"></head>
+<link rel="stylesheet" th:href="@{/css/board.css}">
+<body>
+<header th:replace="~{fragments/layout :: header('community')}"></header>
+
+<main class="main board board-notice">
+    <div class="wrap"
+         th:with="isAdminView=${loginMember != null and loginMember.memberRole.name() != 'USER'}">
+    <div th:class="${isAdminView} ? 'flex flex-col lg:flex-row items-start gap-6' : ''">
+        <!-- 관리자만 좌측 관리자 메뉴 -->
+        <th:block th:if="${isAdminView}">
+            <aside th:replace="~{fragments/admin-menu :: menu('notices')}"></aside>
+        </th:block>
+    <div class="flex-1 min-w-0 w-full">
+
+        <section class="board-hero">
+            <div class="board-hero-icon"><i data-lucide="megaphone" class="ico ico-lg"></i></div>
+            <div class="board-hero-text">
+                <span class="board-eyebrow">리뷰로 소식</span>
+                <h1>공지사항</h1>
+                <p>리뷰로 운영 소식을 모아 봤어요</p>
+            </div>
+            <!-- 관리자만 글을 올린다 -->
+            <div class="board-hero-actions" th:if="${isAdminView}">
+                <a th:href="@{/admin/post/insert}" class="btn btn-board">
+                    <i data-lucide="pen-line" class="ico"></i>글 작성
+                </a>
+            </div>
+        </section>
+
+        <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+        <div th:if="${successMessage}" class="notice notice-ok" th:text="${successMessage}"></div>
+
+        <div class="board-toolbar">
+            <span class="board-count">전체 <b th:text="${postList.totalElements}">0</b>개</span>
+        </div>
+
+        <div class="card board-list">
+            <div th:if="${postList.empty}" class="board-empty">
+                <div class="board-empty-icon"><i data-lucide="megaphone" class="ico ico-lg"></i></div>
+                <p>아직 올라온 소식이 없어요.</p>
+            </div>
+
+            <table class="table" th:unless="${postList.empty}">
+                <thead>
+                <tr>
+                    <th class="center">구분</th>
+                    <th>제목</th>
+                    <th class="center col-hide">조회</th>
+                    <th class="center col-hide">작성일</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="post : ${postList.content}" th:classappend="${post.adminPostPinned} ? 'is-pinned'">
+                    <td class="center nowrap">
+                        <span class="badge"
+                              th:classappend="${post.adminPostCategory == '공지'} ? 'badge-board' : 'badge-accent'"
+                              th:text="${post.adminPostCategory == '공지'} ? '공지' : '추천'">공지</span>
+                    </td>
+                    <td>
+                        <a class="post-cell" th:href="@{/admin/post/read/{id}(id=${post.adminPostId})}">
+                            <img th:if="${post.thumbnail != null}" th:src="${post.thumbnail}" class="post-cell-thumb" alt="">
+                            <span class="post-cell-text">
+                                <span class="post-cell-title">
+                                    <i th:if="${post.adminPostPinned}" data-lucide="pin" class="ico pin-ico"></i>
+                                    <span th:text="${post.adminPostTitle}">제목</span>
+                                </span>
+                            </span>
+                        </a>
+                    </td>
+                    <td class="center col-hide" th:text="${post.adminPostViewCount ?: 0}">0</td>
+                    <td class="center nowrap col-hide"
+                        th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd')}">2026-10-11</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <nav class="pager" th:if="${postList.totalPages > 1}"
+             th:with="blockSize=10,
+              start=${(postList.number / blockSize) * blockSize},
+              end=${((start + blockSize - 1) < postList.totalPages) ? (start + blockSize - 1) : (postList.totalPages - 1)}">
+
+            <a th:if="${!postList.first}"
+               th:href="@{/admin/post/list(page=${postList.number - 1})}">이전</a>
+            <span th:unless="${!postList.first}" class="off">이전</span>
+
+            <th:block th:each="i : ${#numbers.sequence(start, end)}">
+                <span th:if="${i == postList.number}" class="on" th:text="${i + 1}">1</span>
+                <a th:unless="${i == postList.number}"
+                   th:href="@{/admin/post/list(page=${i})}" th:text="${i + 1}">2</a>
+            </th:block>
+
+            <a th:if="${!postList.last}"
+               th:href="@{/admin/post/list(page=${postList.number + 1})}">다음</a>
+            <span th:unless="${!postList.last}" class="off">다음</span>
+        </nav>
+
+    </div>
+    </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/board :: icons}"></th:block>
+</body>
+</html>

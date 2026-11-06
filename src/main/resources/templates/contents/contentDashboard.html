@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('컨텐츠')}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReviewRo - 컨텐츠 대시보드</title>
+</head>
+<!-- 몸통(body)에는 클래스를 달지 않는다: 글자색·글꼴 렌더링이 공용 상단바까지 번진다. 어두운 배경은 main 에만 -->
+<body>
+
+<!-- Header Fragment -->
+<header th:replace="~{fragments/layout :: header('contents')}"></header>
+
+<!-- Main Immersive Full-Screen Split Section -->
+<!-- w-full과 max-w-full을 주어 화면 가로폭을 정확히 100% 채움 -->
+<main class="text-white antialiased bg-slate-950 w-full max-w-full flex flex-col lg:flex-row h-[calc(100vh-56px)] overflow-hidden m-0 p-0">
+
+  <!-- 1. 포토맵 -->
+  <a th:href="@{/contents/photomap}" class="relative flex-1 group overflow-hidden border-b lg:border-b-0 lg:border-r border-slate-800 transition-all duration-500 ease-in-out hover:lg:flex-[2.5] flex items-center justify-center text-center p-6">
+    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+         style="background-image: url('https://images.unsplash.com/photo-1767954581390-0bddde3b8575?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D');">
+    </div>
+    <div class="absolute inset-0 bg-black/60 group-hover:bg-black/25 transition-colors duration-500"></div>
+
+    <div class="relative z-10 flex flex-col items-center justify-center space-y-3 transform transition-transform duration-300 group-hover:scale-105">
+      <div class="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center mb-1 text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+        <i data-lucide="map-pin" class="w-6 h-6"></i>
+      </div>
+      <span class="text-[11px] font-bold tracking-widest uppercase text-blue-400 group-hover:text-white transition-colors">PHOTO MAP</span>
+      <h2 class="text-3xl lg:text-4xl font-extrabold tracking-tight text-white drop-shadow-md">포토맵 그리기</h2>
+      <p class="text-xs text-slate-200 max-w-xs opacity-80 group-hover:opacity-100 transition-opacity">지도 위에 내 추억을 기록하고 위치별 스팟을 둘러보세요</p>
+    </div>
+  </a>
+
+  <!-- 2. 사주팔자 -->
+  <a th:href="@{/contents/saju}" class="relative flex-1 group overflow-hidden border-b lg:border-b-0 lg:border-r border-slate-800 transition-all duration-500 ease-in-out hover:lg:flex-[2.5] flex items-center justify-center text-center p-6">
+    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+         style="background-image: url('https://images.unsplash.com/photo-1542785291-fe3faea39066?q=80&w=688&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D');">
+    </div>
+    <div class="absolute inset-0 bg-black/60 group-hover:bg-black/25 transition-colors duration-500"></div>
+
+    <div class="relative z-10 flex flex-col items-center justify-center space-y-3 transform transition-transform duration-300 group-hover:scale-105">
+      <div class="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center mb-1 text-purple-400 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+        <i data-lucide="sparkles" class="w-6 h-6"></i>
+      </div>
+      <span class="text-[11px] font-bold tracking-widest uppercase text-purple-400 group-hover:text-white transition-colors">FORTUNE</span>
+      <h2 class="text-3xl lg:text-4xl font-extrabold tracking-tight text-white drop-shadow-md">오행여행</h2>
+      <p class="text-xs text-slate-200 max-w-xs opacity-80 group-hover:opacity-100 transition-opacity">나의 사주 기운과 어울리는 맞춤 행운 여행지 분석</p>
+    </div>
+  </a>
+
+  <!-- 3. 여행 챌린지 -->
+  <a th:href="@{/challenge/roulette}" class="relative flex-1 group overflow-hidden border-b lg:border-b-0 lg:border-r border-slate-800 transition-all duration-500 ease-in-out hover:lg:flex-[2.5] flex items-center justify-center text-center p-6">
+    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+         style="background-image: url('https://images.unsplash.com/photo-1450045439515-ff27c2f2e6b1?q=80&w=867&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D');">
+    </div>
+    <div class="absolute inset-0 bg-black/60 group-hover:bg-black/25 transition-colors duration-500"></div>
+
+    <div class="relative z-10 flex flex-col items-center justify-center space-y-3 transform transition-transform duration-300 group-hover:scale-105">
+      <div class="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center mb-1 text-amber-400 group-hover:bg-amber-500 group-hover:text-white transition-colors">
+        <i data-lucide="trophy" class="w-6 h-6"></i>
+      </div>
+      <span class="text-[11px] font-bold tracking-widest uppercase text-amber-400 group-hover:text-white transition-colors">CHALLENGE</span>
+      <h2 class="text-3xl lg:text-4xl font-extrabold tracking-tight text-white drop-shadow-md">랜덤 챌린지</h2>
+      <p class="text-xs text-slate-200 max-w-xs opacity-80 group-hover:opacity-100 transition-opacity">시즌별 미션에 도전하고 보상과 뱃지를 채워보세요</p>
+    </div>
+  </a>
+
+  <!-- 4. 여행 밸런스 게임 -->
+  <a th:href="@{/balance/list}" class="relative flex-1 group overflow-hidden transition-all duration-500 ease-in-out hover:lg:flex-[2.5] flex items-center justify-center text-center p-6">
+    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+         style="background-image: url('https://images.unsplash.com/photo-1748609115191-c222eddc7a89?q=80&w=627&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D');">
+    </div>
+    <div class="absolute inset-0 bg-black/60 group-hover:bg-black/25 transition-colors duration-500"></div>
+
+    <div class="relative z-10 flex flex-col items-center justify-center space-y-3 transform transition-transform duration-300 group-hover:scale-105">
+      <div class="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center mb-1 text-rose-400 group-hover:bg-rose-600 group-hover:text-white transition-colors">
+        <i data-lucide="gamepad-2" class="w-6 h-6"></i>
+      </div>
+      <span class="text-[11px] font-bold tracking-widest uppercase text-rose-400 group-hover:text-white transition-colors">BALANCE GAME</span>
+      <h2 class="text-3xl lg:text-4xl font-extrabold tracking-tight text-white drop-shadow-md">여행 밸런스 게임</h2>
+      <p class="text-xs text-slate-200 max-w-xs opacity-80 group-hover:opacity-100 transition-opacity">취향 선택 테스트로 알아보는 나만의 여행 유형</p>
+    </div>
+  </a>
+
+</main>
+
+<!-- 상단바 드롭다운·로그인 창 스크립트가 푸터 조각에 들어 있다 -->
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<!-- Script Initialization -->
+<script>
+  lucide.createIcons();
+</script>
+</body>
+</html>

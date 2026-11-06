@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head(${region.label} + ' 톡방')}"></head>
+<link rel="stylesheet" th:href="@{/css/board.css}">
+<body>
+<header th:replace="~{fragments/layout :: header('community')}"></header>
+
+<main class="main board board-chat">
+    <div class="wrap">
+
+        <section class="board-hero">
+            <div class="board-hero-icon"><i data-lucide="map-pin" class="ico ico-lg"></i></div>
+            <div class="board-hero-text">
+                <span class="board-eyebrow">지역 톡방</span>
+                <h1 th:text="${region.label} + ' 톡방'">부산 톡방</h1>
+                <p th:text="${region.label} + '(으)로 떠나는 사람들과 실시간으로 이야기해요'">부산(으)로 떠나는 사람들과 실시간으로 이야기해요</p>
+            </div>
+            <div class="board-hero-actions">
+                <a th:href="@{/chat}" class="btn btn-line">
+                    <i data-lucide="arrow-left" class="ico"></i>다른 지역
+                </a>
+            </div>
+        </section>
+
+        <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+
+        <!-- 방 만들기 (로그인한 회원만) -->
+        <form th:if="${loginMember != null}" class="card chat-create" th:action="@{/chat/rooms}" method="post">
+            <input type="hidden" name="region" th:value="${region.name()}">
+            <input type="text" name="chatRoomName" maxlength="50" required
+                   th:placeholder="${region.label} + ' 톡방 이름 (예: 해운대 야경 같이 볼 사람)'">
+            <button type="submit" class="btn btn-board">
+                <i data-lucide="plus" class="ico"></i>톡방 만들기
+            </button>
+        </form>
+        <div th:if="${loginMember == null}" class="notice">
+            톡방을 만들거나 들어가려면 <a th:href="@{/login}" data-login-open><b>로그인</b></a>해 주세요.
+        </div>
+
+        <div class="board-toolbar">
+            <span class="board-count">톡방 <b th:text="${#lists.size(roomList)}">0</b>개</span>
+        </div>
+
+        <div th:if="${#lists.isEmpty(roomList)}" class="card board-empty">
+            <div class="board-empty-icon"><i data-lucide="message-circle" class="ico ico-lg"></i></div>
+            <p>아직 이 지역에 톡방이 없어요. 첫 톡방을 만들어 보세요!</p>
+        </div>
+
+        <div class="chat-rooms" th:unless="${#lists.isEmpty(roomList)}">
+            <a th:each="room : ${roomList}" class="chat-room-card"
+               th:href="@{/chat/rooms/{id}(id=${room.chatRoomId})}">
+                <span class="chat-room-name" th:text="${room.chatRoomName}">톡방 이름</span>
+                <span class="chat-room-meta">
+                    <span class="chat-online" th:text="${room.onlineCount} + '명 접속 중'">0명 접속 중</span>
+                    <span th:text="${(room.creatorNickname ?: '회원') + ' · ' + #temporals.format(room.createdAt, 'MM.dd')}">닉네임 · 10.27</span>
+                </span>
+            </a>
+        </div>
+
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/board :: icons}"></th:block>
+</body>
+</html>

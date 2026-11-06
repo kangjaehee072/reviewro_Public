@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<!-- 약관 공용 조각. 모양은 style.css 의 .terms-* -->
+
+<!-- 운영 정보 + 개인정보 보호책임자. 비어 있는 칸(연락처·이메일 등)은 줄째 숨긴다 -->
+<div th:fragment="officer(info)" class="terms-officer">
+    <strong>개인정보 보호책임자</strong>
+    <dl>
+        <th:block th:if="${info.operatorName != null}">
+            <dt>운영</dt><dd th:text="${info.operatorName}">리뷰로</dd>
+        </th:block>
+        <th:block th:if="${info.officerName != null}">
+            <dt>책임자</dt>
+            <dd th:text="${info.officerName + (info.officerPosition != null ? ' (' + info.officerPosition + ')' : '')}">홍길동 (대표)</dd>
+        </th:block>
+        <th:block th:if="${info.officerPhone != null}">
+            <dt>연락처</dt><dd th:text="${info.officerPhone}">010-0000-0000</dd>
+        </th:block>
+        <th:block th:if="${info.officerEmail != null}">
+            <dt>이메일</dt><dd><a th:href="'mailto:' + ${info.officerEmail}" th:text="${info.officerEmail}">a@b.c</a></dd>
+        </th:block>
+        <th:block th:if="${info.effectiveDate != null}">
+            <dt>시행일</dt><dd th:text="${#temporals.format(info.effectiveDate, 'yyyy년 M월 d일')}">2026년 10월 27일</dd>
+        </th:block>
+    </dl>
+</div>
+
+<!-- 회원가입 동의 블록. 체크박스 값은 섹션 번호(agreedTerms), '보기' 를 누르면 그 섹션 모달 -->
+<div th:fragment="consent(sections, info)" class="terms-consent" th:unless="${#lists.isEmpty(sections)}">
+    <label class="terms-check terms-check-all">
+        <input type="checkbox" id="agreeAll">
+        <span>필수 약관에 모두 동의합니다</span>
+    </label>
+    <ul>
+        <li th:each="s : ${sections}">
+            <label class="terms-check">
+                <input type="checkbox" name="agreedTerms" th:value="${s.termsSectionId}" required>
+                <span><em>(필수)</em> <th:block th:text="${s.title}">이용약관</th:block> 동의</span>
+            </label>
+            <button type="button" class="terms-view" th:attr="data-terms-open=${s.termsSectionId}">보기</button>
+        </li>
+    </ul>
+
+    <dialog th:each="s : ${sections}" class="terms-modal" th:id="'terms-' + ${s.termsSectionId}">
+        <div class="terms-modal-head">
+            <strong th:text="${s.title}">이용약관</strong>
+            <button type="button" class="terms-modal-close" data-terms-close aria-label="닫기">✕</button>
+        </div>
+        <div class="terms-modal-body">
+            <p class="terms-text" th:text="${s.content}">내용</p>
+            <div th:replace="~{fragments/terms :: officer(${info})}"></div>
+        </div>
+        <div class="terms-modal-foot">
+            <button type="button" class="btn btn-primary btn-full" th:attr="data-terms-agree=${s.termsSectionId}">동의하고 닫기</button>
+        </div>
+    </dialog>
+
+    <script>
+        (function () {
+            const all = document.getElementById('agreeAll');
+            const boxes = [...document.querySelectorAll('input[name="agreedTerms"]')];
+            const sync = () => { all.checked = boxes.every((b) => b.checked); };
+            all.addEventListener('change', () => boxes.forEach((b) => { b.checked = all.checked; }));
+            boxes.forEach((b) => b.addEventListener('change', sync));
+
+            document.querySelectorAll('[data-terms-open]').forEach((btn) => {
+                btn.addEventListener('click', () => document.getElementById('terms-' + btn.dataset.termsOpen).showModal());
+            });
+            document.querySelectorAll('.terms-modal').forEach((dlg) => {
+                dlg.querySelector('[data-terms-close]').addEventListener('click', () => dlg.close());
+                // 바깥(어두운 곳)을 누르면 닫힌다
+                dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+            });
+            document.querySelectorAll('[data-terms-agree]').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const box = boxes.find((b) => b.value === btn.dataset.termsAgree);
+                    if (box) box.checked = true;
+                    sync();
+                    btn.closest('dialog').close();
+                });
+            });
+        })();
+    </script>
+</div>
+
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('자유게시판')}"></head>
+<link rel="stylesheet" th:href="@{/css/board.css}">
+<body>
+<header th:replace="~{fragments/layout :: header('community')}"></header>
+
+<main class="main board board-free">
+    <div class="wrap">
+
+        <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+        <div th:if="${successMessage}" class="notice notice-ok" th:text="${successMessage}"></div>
+
+        <article class="card post" th:with="writer=${freeBoardDto.freeBoardName ?: '회원'}">
+            <header class="post-head">
+                <div class="post-badges">
+                    <span class="badge badge-board">자유게시판</span>
+                </div>
+                <h1 class="post-title" th:text="${freeBoardDto.freeBoardTitle}">제목</h1>
+
+                <div class="post-meta">
+                    <span>
+                        <span class="post-avatar" th:text="${#strings.substring(writer, 0, 1)}">김</span>
+                        <span class="post-author" th:text="${writer}">작성자</span>
+                    </span>
+                    <span><i data-lucide="calendar" class="ico"></i><span th:text="${freeBoardDto.freeBoardDate}">2026-06-07</span></span>
+                    <span><i data-lucide="share-2" class="ico"></i>공유 <span th:text="${freeBoardDto.freeBoardShareCount ?: 0}">0</span></span>
+                </div>
+            </header>
+
+            <div class="post-body">
+                <div class="post-gallery" th:if="${images != null and !images.isEmpty()}"
+                     th:classappend="${images.size() == 1} ? 'single'">
+                    <img th:each="src : ${images}" th:src="${src}" alt="첨부 사진">
+                </div>
+
+                <div class="post-content" th:text="${freeBoardDto.freeBoardContent}">내용</div>
+
+            </div>
+
+            <div class="post-reactions" data-widget="reactions" data-type="FREE_BOARD"
+                 th:attr="data-id=${freeBoardDto.freeBoardId}"></div>
+
+            <footer class="post-foot">
+                <a th:href="@{/freeboard/list}" class="btn btn-line">
+                    <i data-lucide="list" class="ico"></i>목록
+                </a>
+
+                <div class="owner-actions"
+                     th:if="${loginMemberId != null and loginMemberId == freeBoardDto.freeBoardMemberId}">
+                    <a th:href="@{/freeboard/update/{id}(id=${freeBoardDto.freeBoardId})}" class="btn btn-line">
+                        <i data-lucide="pencil" class="ico"></i>수정
+                    </a>
+                    <form th:action="@{/freeboard/delete}" method="post" class="inline-form"
+                          onsubmit="return confirm('이 글을 삭제할까요? 삭제하면 되돌릴 수 없어요.');">
+                        <input type="hidden" name="freeBoardId" th:value="${freeBoardDto.freeBoardId}">
+                        <button type="submit" class="btn btn-danger-ghost">
+                            <i data-lucide="trash-2" class="ico"></i>삭제
+                        </button>
+                    </form>
+                </div>
+            </footer>
+        </article>
+
+        <section class="card post-comments">
+            <div data-widget="comments" data-type="FREE_BOARD" th:attr="data-id=${freeBoardDto.freeBoardId}"></div>
+        </section>
+
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script type="module" th:src="@{/js/dist/board.js}"></script>
+<th:block th:replace="~{fragments/board :: icons}"></th:block>
+</body>
+</html>

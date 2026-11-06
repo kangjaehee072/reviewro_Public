@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('공지·추천 수정')}"></head>
+<link rel="stylesheet" th:href="@{/css/board.css}">
+<body>
+<header th:replace="~{fragments/layout :: header('community')}"></header>
+
+<main class="main board board-notice">
+    <div class="wrap"
+         th:with="isAdminView=${loginMember != null and loginMember.memberRole.name() != 'USER'}">
+    <div th:class="${isAdminView} ? 'flex flex-col lg:flex-row items-start gap-6' : ''">
+        <!-- 관리자만 좌측 관리자 메뉴 -->
+        <th:block th:if="${isAdminView}">
+            <aside th:replace="~{fragments/admin-menu :: menu('notices')}"></aside>
+        </th:block>
+    <div class="flex-1 min-w-0 w-full">
+        <div class="board-form">
+
+            <a th:href="@{/admin/post/read/{id}(id=${adminPostDTO.adminPostId})}" class="back-link">
+                <i data-lucide="chevron-left" class="ico"></i>글로 돌아가기
+            </a>
+            <div class="board-form-head">
+                <h1>공지글 수정</h1>
+            </div>
+
+            <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+
+            <form class="card" th:action="@{/admin/post/update}" th:object="${adminPostDTO}" method="post">
+                <input type="hidden" th:field="*{adminPostId}">
+                <input type="hidden" th:field="*{adminPostMemberId}">
+
+                <section class="form-section">
+
+                    <div class="field">
+                        <label for="adminPostTitle">제목<span class="req">*</span></label>
+                        <input type="text" id="adminPostTitle" th:field="*{adminPostTitle}" required>
+                    </div>
+
+                    <label class="toggle-row" for="isPinnedCheck">
+                        <input type="checkbox" id="isPinnedCheck" th:field="*{adminPostPinned}">
+                        <span><b>목록 맨 위에 고정</b><small>중요한 공지나 추천글을 항상 위에 보여줘요</small></span>
+                    </label>
+
+                    <div class="field">
+                        <label for="adminPostContent">내용<span class="req">*</span></label>
+                        <textarea id="adminPostContent" th:field="*{adminPostContent}" rows="12" required></textarea>
+                    </div>
+                </section>
+
+                <div class="board-form-foot">
+                    <a th:href="@{/admin/post/read/{id}(id=*{adminPostId})}" class="btn btn-line">취소</a>
+                    <button type="submit" class="btn btn-board"><i data-lucide="check" class="ico"></i>수정 완료</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+    </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/board :: icons}"></th:block>
+</body>
+</html>

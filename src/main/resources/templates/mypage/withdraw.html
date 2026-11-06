@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('회원 탈퇴')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('mypage')}"></header>
+
+<main class="main">
+    <div class="wrap mypage">
+        <aside th:replace="~{fragments/mypage-menu :: menu('edit')}"></aside>
+
+        <section class="mypage-content">
+            <div class="page-head">
+                <div>
+                    <h1>회원 탈퇴</h1>
+                    <p>탈퇴하면 되돌릴 수 없어요. 아래 내용을 꼭 확인해 주세요</p>
+                </div>
+            </div>
+
+            <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="withdraw-info">
+                        <div>
+                            <h3>바로 지워지는 것</h3>
+                            <ul>
+                                <li>회원 정보 전부 (아이디·이메일·연락처·주소·프로필 사진·소셜 연동)</li>
+                                <li>내 여행계획, 포토맵(사진 포함), 저장한 장소, 좋아요·투표 기록</li>
+                                <li>내가 만든 여행 그룹 (그룹 채팅 포함), 참여 중인 그룹에서는 나가기</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3>남는 것</h3>
+                            <ul>
+                                <li>게시판 글·댓글·리뷰, 톡방 메시지는 다른 이용자의 대화 흐름을 위해 남고, 작성자는 '탈퇴회원' 으로 표시돼요 (누가 썼는지는 남지 않아요)</li>
+                                <li>남기고 싶지 않은 글은 탈퇴 전에 직접 삭제해 주세요</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <form id="withdrawForm" th:action="@{/mypage/withdraw}" method="post">
+                        <div class="field" th:unless="${loginMember.social}">
+                            <label for="password">비밀번호 확인<span class="req">*</span></label>
+                            <input type="password" id="password" name="password" required autocomplete="current-password">
+                        </div>
+                        <div class="field" th:if="${loginMember.social}">
+                            <label for="confirmText">확인 문장 입력<span class="req">*</span></label>
+                            <input type="text" id="confirmText" name="confirmText" required
+                                   th:placeholder="${confirmText}">
+                            <p class="hint">소셜로 가입한 계정이라 비밀번호 대신 '<b th:text="${confirmText}"></b>' 를 그대로 입력해 주세요</p>
+                        </div>
+
+                        <div class="form-actions">
+                            <a th:href="@{/mypage/edit}" class="btn btn-line">취소</a>
+                            <button type="submit" class="btn btn-danger">탈퇴하기</button>
+                        </div>
+                    </form>
+
+                    <!-- 2차 확인: 비밀번호를 넣고 탈퇴하기를 누르면 한 번 더 묻는다 -->
+                    <dialog id="withdrawConfirm" class="modal">
+                        <div class="modal-head">
+                            <strong>정말 탈퇴할까요?</strong>
+                        </div>
+                        <div class="modal-body">
+                            <p>탈퇴하면 계정과 위 데이터가 바로 지워지고 되돌릴 수 없어요.</p>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-line" data-withdraw-no>아니요</button>
+                                <button type="button" class="btn btn-danger" data-withdraw-yes>예, 탈퇴합니다</button>
+                            </div>
+                        </div>
+                    </dialog>
+                    <script>
+                        (function () {
+                            const form = document.getElementById('withdrawForm');
+                            const dlg = document.getElementById('withdrawConfirm');
+                            let confirmed = false;
+                            form.addEventListener('submit', (e) => {
+                                if (confirmed) return;
+                                e.preventDefault();
+                                dlg.showModal();
+                            });
+                            dlg.querySelector('[data-withdraw-no]').addEventListener('click', () => dlg.close());
+                            dlg.querySelector('[data-withdraw-yes]').addEventListener('click', () => {
+                                confirmed = true;
+                                dlg.close();
+                                form.requestSubmit();
+                            });
+                        })();
+                    </script>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

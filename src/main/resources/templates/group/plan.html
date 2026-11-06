@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head(${plan.planTitle})}"></head>
+<link rel="stylesheet" th:href="@{/css/board.css}">
+<body>
+<header th:replace="~{fragments/layout :: header('community')}"></header>
+
+<main class="main board board-group">
+    <div class="wrap">
+
+        <section class="board-hero">
+            <div class="board-hero-icon"><i data-lucide="map" class="ico ico-lg"></i></div>
+            <div class="board-hero-text">
+                <span class="board-eyebrow" th:text="${group.groupName}">그룹 이름</span>
+                <h1 th:text="${plan.planTitle}">계획 제목</h1>
+                <p th:text="${(plan.planStartDate ?: '?') + ' ~ ' + (plan.planEndDate ?: '?')}">기간</p>
+            </div>
+            <div class="board-hero-actions">
+                <a th:href="@{/groups/{id}(id=${group.groupId})}" class="btn btn-line">
+                    <i data-lucide="arrow-left" class="ico"></i>그룹으로
+                </a>
+            </div>
+        </section>
+
+        <div class="group-layout">
+            <div class="group-main">
+                <section class="card">
+                    <div th:if="${plan.planDescription != null and !plan.planDescription.isBlank()}"
+                         class="plan-day" th:text="${plan.planDescription}">설명</div>
+
+                    <div th:if="${#lists.isEmpty(plan.dailyPlans)}" class="group-empty">일정이 없는 계획이에요.</div>
+
+                    <div th:each="day : ${plan.dailyPlans}" class="plan-day"
+                         th:with="stops=${plan.schedulePlans.?[dailyId == __${day.dailyId}__]}">
+                        <h3>
+                            <span th:text="${day.dailyNumber} + '일차'">1일차</span>
+                            <small th:text="${day.dailyDate != null} ? ${#temporals.format(day.dailyDate, 'MM.dd (E)')} : ''">10.27</small>
+                        </h3>
+                        <p th:if="${#lists.isEmpty(stops)}" class="hint">아직 넣은 장소가 없어요.</p>
+                        <div th:each="s, st : ${stops}" class="plan-stop">
+                            <span class="no" th:text="${st.count}">1</span>
+                            <div>
+                                <strong th:text="${s.location != null} ? ${s.location.locationName} : '장소 정보 없음'">장소</strong>
+                                <span th:if="${s.location != null and s.location.locationAddress != null}"
+                                      th:text="${s.location.locationAddress}">주소</span>
+                                <span th:if="${s.scheduleDescription != null and !s.scheduleDescription.isBlank()}"
+                                      th:text="${' · ' + s.scheduleDescription}">메모</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <aside th:replace="~{group/fragments :: chatPanel}"></aside>
+        </div>
+
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/board :: icons}"></th:block>
+<th:block th:replace="~{fragments/chat :: script(@{/groups/{id}(id=${group.groupId})})}"></th:block>
+</body>
+</html>

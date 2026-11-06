@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('커뮤니티 대시보드')}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReviewRo - 커뮤니티 대시보드</title>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between bg-slate-100">
+
+<!-- 1. Nav / Header 영역 -->
+<header th:replace="~{fragments/layout :: header('community')}"></header>
+
+<!-- Main Container -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full flex-1 space-y-8">
++
+    <!-- 상단 대시보드 헤더 랭킹/안내 카드 -->
+    <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
+        <div class="relative z-10 max-w-2xl space-y-3">
+            <span class="px-3 py-1 bg-blue-500/20 text-blue-300 border border-blue-400/30 rounded-full text-xs font-semibold backdrop-blur-md">ReviewRo Community</span>
+            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">여행의 모든 이야기, 커뮤니티에서 만나보세요</h1>
+            <p class="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed">
+                진솔한 여행 후기부터 소소한 자유 수다, 함께할 동행자 찾기와 공식 공지사항까지 한곳에서 빠르게 이동하실 수 있습니다.
+            </p>
+        </div>
+        <!-- 우측 배경 루시드 아이콘 오버레이 -->
+        <i data-lucide="compass" class="w-64 h-64 absolute -right-10 -bottom-10 text-white/5 pointer-events-none"></i>
+    </div>
+
+    <!-- 2x2 직관적인 카테고리 카드 그리드 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- ==================== 1. 여행 리뷰 게시판 ==================== -->
+        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all p-7 flex flex-col justify-between group">
+            <div class="space-y-5">
+                <div class="flex items-center justify-between">
+                    <div class="w-14 h-14 rounded-2xl bg-amber-50 text-amber-500 border border-amber-100 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform">
+                        <i data-lucide="star" class="w-7 h-7 fill-amber-400 text-amber-400"></i>
+                    </div>
+                    <span class="text-xs font-bold text-amber-600 bg-amber-50 px-3 py-1 rounded-full border border-amber-200/60">리얼 후기</span>
+                </div>
+
+                <div class="space-y-1.5">
+                    <h2 class="text-xl font-bold text-slate-900 group-hover:text-amber-600 transition-colors">여행 리뷰 게시판</h2>
+                    <p class="text-xs text-slate-500 leading-relaxed">
+                        직접 다녀온 여행지와 맛집, 숙소의 솔직한 평점과 생생한 후기를 공유하고 확인해보세요.
+                    </p>
+                </div>
+            </div>
+
+            <div class="pt-6 mt-6 border-t border-slate-100 grid grid-cols-2 gap-3">
+                <a th:href="@{/review/list}" class="py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl text-center transition-colors flex items-center justify-center gap-1.5">
+                    <i data-lucide="list" class="w-3.5 h-3.5"></i>
+                    <span>리뷰 구경하기</span>
+                </a>
+                <a th:href="@{/review/insert}" class="py-3 px-4 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl text-center shadow-sm transition-all flex items-center justify-center gap-1.5">
+                    <i data-lucide="pen-tool" class="w-3.5 h-3.5"></i>
+                    <span>리뷰 작성하기</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- ==================== 2. 자유 게시판 ==================== -->
+        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all p-7 flex flex-col justify-between group">
+            <div class="space-y-5">
+                <div class="flex items-center justify-between">
+                    <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform">
+                        <i data-lucide="message-square" class="w-7 h-7"></i>
+                    </div>
+                    <span class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-200/60">소통 공간</span>
+                </div>
+
+                <div class="space-y-1.5">
+                    <h2 class="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors">자유 게시판</h2>
+                    <p class="text-xs text-slate-500 leading-relaxed">
+                        여행 팁, 준비물 질문, 사소한 일상 이야기까지 다양한 주제로 유저들과 자유롭게 대화하세요.
+                    </p>
+                </div>
+            </div>
+
+            <div class="pt-6 mt-6 border-t border-slate-100 grid grid-cols-2 gap-3">
+                <a th:href="@{/freeboard/list}" class="py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl text-center transition-colors flex items-center justify-center gap-1.5">
+                    <i data-lucide="list" class="w-3.5 h-3.5"></i>
+                    <span>게시글 목록</span>
+                </a>
+                <a th:href="@{/freeboard/insert}" class="py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl text-center shadow-sm transition-all flex items-center justify-center gap-1.5">
+                    <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                    <span>자유글 작성</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- ==================== 3. 동행자 게시판 ==================== -->
+        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all p-7 flex flex-col justify-between group">
+            <div class="space-y-5">
+                <div class="flex items-center justify-between">
+                    <div class="w-14 h-14 rounded-2xl bg-purple-50 text-purple-600 border border-purple-100 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform">
+                        <i data-lucide="users" class="w-7 h-7"></i>
+                    </div>
+                    <span class="text-xs font-bold text-purple-600 bg-purple-50 px-3 py-1 rounded-full border border-purple-200/60">동행 찾기</span>
+                </div>
+
+                <div class="space-y-1.5">
+                    <h2 class="text-xl font-bold text-slate-900 group-hover:text-purple-600 transition-colors">같이 갈래 ?</h2>
+                    <p class="text-xs text-slate-500 leading-relaxed">
+                        혼자 떠나는 여행이 부담스러울 때, 일정이나 맛집 탐방을 함께 즐길 딱 맞는 동행을 구해보세요.
+                    </p>
+                </div>
+            </div>
+
+            <div class="pt-6 mt-6 border-t border-slate-100 grid grid-cols-2 gap-3">
+                <a th:href="@{/companion/list}" class="py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl text-center transition-colors flex items-center justify-center gap-1.5">
+                    <i data-lucide="search" class="w-3.5 h-3.5"></i>
+                    <span>동행 찾아보기</span>
+                </a>
+                <a th:href="@{/companion/insert}" class="py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl text-center shadow-sm transition-all flex items-center justify-center gap-1.5">
+                    <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+                    <span>동행 모집하기</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- ==================== 4. 관리자용 게시판 (공지/이벤트) ==================== -->
+        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all p-7 flex flex-col justify-between group">
+            <div class="space-y-5">
+                <div class="flex items-center justify-between">
+                    <div class="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform">
+                        <i data-lucide="megaphone" class="w-7 h-7"></i>
+                    </div>
+                    <span class="text-xs font-bold text-rose-600 bg-rose-50 px-3 py-1 rounded-full border border-rose-200/60">공지사항</span>
+                </div>
+
+                <div class="space-y-1.5">
+                    <h2 class="text-xl font-bold text-slate-900 group-hover:text-rose-600 transition-colors">공지사항 & 이벤트</h2>
+                    <p class="text-xs text-slate-500 leading-relaxed">
+                        ReviewRo 서비스의 중요 업데이트 소식, 점검 안내 및 진행 중인 혜택 이벤트를 확인하세요.
+                    </p>
+                </div>
+            </div>
+
+            <div class="pt-6 mt-6 border-t border-slate-100">
+                <a th:href="@{/admin/post/list}" class="w-full py-3 px-4 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl text-center shadow-sm transition-all flex items-center justify-center gap-1.5">
+                    <i data-lucide="bell" class="w-3.5 h-3.5"></i>
+                    <span>공지사항 전체보기</span>
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+</main>
+
+<!-- Footer 영역 -->
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<!-- Script Initialization -->
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>

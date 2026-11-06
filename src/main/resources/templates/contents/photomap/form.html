@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${photoMap.photoMapId == null} ? '포토맵 만들기' : '포토맵 수정')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: header('contents')}"></header>
+
+<main class="main">
+    <div class="wrap">
+        <section class="mypage-content">
+            <div class="notice notice-error" id="pmError" hidden></div>
+
+            <div class="card">
+                <div class="card-body pm-form-row">
+                    <div class="field">
+                        <label for="photoMapTitle">제목<span class="req">*</span></label>
+                        <input type="text" id="photoMapTitle" th:value="${photoMap.photoMapTitle}" placeholder="예) 2026 전국 일주" maxlength="50" required>
+                    </div>
+                    <div class="field">
+                        <label for="photoMapDescription">설명</label>
+                        <input type="text" id="photoMapDescription" th:value="${photoMap.photoMapDescription}" placeholder="한 줄 소개" maxlength="200">
+                    </div>
+                    <div th:replace="~{contents/photomap/fragments/photomap :: exportBar}"></div>
+                </div>
+            </div>
+
+            <div class="pm-layout">
+                <div th:replace="~{contents/photomap/fragments/photomap :: stage}"></div>
+
+                <aside class="card pm-side" id="pm-list-root"></aside>
+            </div>
+
+            <div class="pm-actions" id="pm-actions-root"></div>
+            <div id="pm-modal-root"></div>
+
+
+            <input type="file" id="pmFile" accept="image/*" hidden>
+            <input type="file" id="pmStickerFile" accept="image/*" hidden>
+        </section>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<script th:inline="javascript">
+    window.PM_CONFIG = {
+        id: /*[[${photoMap.photoMapId}]]*/ null,
+        title: /*[[${photoMap.photoMapTitle}]]*/ '',
+        photoMapImages: /*[[${photoMap.photoMapImages}]]*/ [],
+        photoMapStickers: /*[[${photoMap.photoMapStickers}]]*/ [],
+        editable: true
+    };
+</script>
+<script type="module" th:src="@{/js/dist/photomap.js}"></script>
+
+</body>
+</html>

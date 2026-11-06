@@ -1,0 +1,207 @@
+/* =========================================================
+   AI 추천 페이지 전용
+   왼쪽: 일러스트 + 채팅 / 오른쪽: 지도 (그 위에 추천 장소 목록이 떠 있다)
+   채팅 말풍선(.chat-*)·장소 카드(.pick-*)·모달(.pm-*)은 공용(style.css)을 쓴다
+   ========================================================= */
+
+/* 화면 높이에 맞춘다. 안쪽에서만 스크롤하고 페이지는 거의 안 늘어난다 */
+.ai {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 16px;
+    height: calc(100dvh - var(--app-chrome));
+    min-height: 520px;
+}
+
+/* ===== 왼쪽: 지도 ===== */
+/* 목록을 이 안에 띄우므로 기준점이 된다 */
+.ai-map {
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--bg);
+}
+
+/* MapView 가 그리는 <div id="map">.
+   공용 style.css 의 #map 이 height:520px 을 박아두는데 id 선택자가 더 세서
+   클래스로는 못 덮는다. 높이가 어긋나면 카카오가 보이지 않는 영역까지 지도로 쳐서
+   마커가 화면 가운데가 아니라 아래로 치우친다 */
+.ai-map #map {
+    width: 100%;
+    height: 100%;
+}
+
+/* ===== 지도 오른쪽에 붙는 추천 장소 목록 ===== */
+/* 오른쪽·위·아래를 0 으로 붙여 지도가 옆으로 비어져 나오지 않게 한다.
+   모서리는 .ai-map 의 overflow:hidden 이 지도 곡률에 맞춰 잘라 준다.
+   폭을 바꾸면 AiApp.jsx 의 LIST_COVER 도 같이 바꿔야 한다 (마커 중심 보정값) */
+.ai-list {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    overflow-y: auto;
+    border-left: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+    transition: transform .22s ease;
+}
+
+/* 접힘. 지도 오른쪽 밖으로 밀어 두면 .ai-map 의 overflow:hidden 이 잘라 준다 */
+.ai-list.off {
+    transform: translateX(100%);
+}
+
+/* ===== 목록 접었다 펴는 손잡이 ===== */
+.ai-list-handle {
+    position: absolute;
+    top: 50%;
+    right: 300px;               /* 목록 왼쪽 끝에 붙는다 (.ai-list width 와 같아야 한다) */
+    z-index: 21;
+    width: 22px;
+    height: 56px;
+    padding: 0;
+    transform: translateY(-50%);
+    border: 1px solid var(--border);
+    border-right: 0;
+    border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+    background: var(--surface);
+    color: var(--text-2);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: right .22s ease, background .15s;
+}
+
+.ai-list-handle:hover {
+    background: var(--primary-bg);
+    color: var(--primary);
+}
+
+.ai-list-handle.off {
+    right: 0;
+}
+
+.ai-list-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 12px;
+    font-size: var(--fs-sub);
+}
+
+/* 몇 곳 찾았는지 */
+.ai-count {
+    padding: 2px 8px;
+    border-radius: var(--radius-pill);
+    background: var(--primary-bg);
+    color: var(--primary);
+    font-size: var(--fs-caption);
+    font-weight: 700;
+}
+
+/* ===== 왼쪽: 일러스트 + 채팅 ===== */
+/* 마크업은 지도 다음이지만 넓은 화면에선 왼쪽 칸으로 당긴다 */
+.ai-side {
+    order: -1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+    min-height: 0;
+}
+
+.ai-illust {
+    display: block;
+    flex: none;
+    /* 비율은 그대로 두고 줄인다 (높이는 auto 라 가로를 따라온다).
+       그림 파일은 위아래 여백을 잘라 둬서, 아래 채팅 칸이 그만큼 넓어진다 */
+    width: 81%;
+    margin: 0 auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+}
+
+/* AiChat 의 inline 모드 */
+.ai-side .chat-inline {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--surface);
+}
+
+/* 남는 높이를 채팅 기록이 다 먹는다 */
+.ai-side .chat-inline .chat-log {
+    flex: 1;
+    min-height: 0;
+    height: auto;
+}
+
+/* 탭 줄은 좁은 화면 전용이다. 넓을 땐 세 칸이 다 보이므로 필요 없다 */
+.ai-tabs {
+    display: none;
+}
+
+/* ===== 좁은 화면: 칸을 나란히 못 두니 탭으로 바꿔 끼운다 ===== */
+/* 안 보이는 칸도 지우지 않고 가리기만 한다.
+   지우면 지도를 매번 새로 만들고 채팅 대화도 날아간다 */
+@media (max-width: 1100px) {
+    .ai {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    .ai-tabs {
+        display: flex;
+        margin-bottom: 0;
+    }
+
+    /* 한 칸씩 탭으로 보여주므로 순서는 마크업 그대로 (탭 줄이 맨 위) */
+    .ai-side { order: 0; }
+
+    /* 접는 손잡이는 목록이 지도를 덮을 때만 쓸모가 있다 */
+    .ai-list-handle { display: none; }
+
+    /* 칸이 화면 폭을 다 쓰므로 90% 로 두면 일러스트가 원본만큼 커진다 */
+    .ai-illust { max-width: 280px; }
+
+    /* 목록 탭: 지도 칸은 자리만 남기고 안쪽 지도를 끈다 (목록이 그 안에 들어 있다) */
+    .ai.tab-list #map,
+    .ai.tab-list .ai-side { display: none; }
+
+    .ai.tab-list .ai-map {
+        border: 0;
+        background: none;
+    }
+
+    .ai.tab-list .ai-list,
+    .ai.tab-list .ai-list.off {
+        position: static;
+        width: auto;
+        height: 100%;
+        transform: none;
+        border: 0;
+        box-shadow: none;
+    }
+
+    /* 지도 탭 */
+    .ai.tab-map .ai-list,
+    .ai.tab-map .ai-side { display: none; }
+
+    /* 채팅 탭 */
+    .ai.tab-chat .ai-map { display: none; }
+}

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('챌린지 등록')}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReviewRo - 챌린지 등록</title>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between bg-slate-100">
+
+<!-- 1. Nav / Header 영역 -->
+<header th:replace="~{fragments/layout :: header('contents')}"></header>
+
+<!-- Main Container (좌우 Flex 배치 적용) -->
+<main class="main" style="padding: 2.5rem 1.5rem; flex: 1;">
+    <div class="wrap admin-layout">
+
+        <!-- ==================== [좌측 사이드바] ==================== -->
+        <aside th:replace="~{fragments/admin-menu :: menu('challenges')}"></aside>
+
+        <!-- ==================== [우측 메인 콘텐츠 영역] ==================== -->
+        <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1.5rem;">
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
+                <!-- 페이지 타이틀 -->
+                <div class="pb-4 border-b border-slate-100">
+                    <h1 class="text-xl font-bold text-slate-900">새 챌린지 등록</h1>
+                    <p class="text-xs text-slate-500 mt-0.5">새로운 여행 챌린지 항목을 생성하고 세부 내용을 설정합니다.</p>
+                </div>
+
+                <!-- 에러 메시지 알림 -->
+                <div th:if="${errorMessage}" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-xs font-semibold shadow-sm" th:text="${errorMessage}"></div>
+
+                <!-- 폼 시작 -->
+                <form th:action="@{/challengeinsert}" th:object="${challenge}" method="post" class="space-y-6 text-xs">
+
+                    <!-- 와이어프레임 반영: 2블록으로 분할 -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                        <!-- 블록 1: 기본 정보 (챌린지 이름) -->
+                        <div class="space-y-4 bg-slate-50/50 p-5 rounded-xl border border-slate-100 flex flex-col justify-between">
+                            <div class="space-y-4">
+                                <h3 class="font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                                    <i data-lucide="info" class="w-4 h-4 text-blue-600"></i> 기본 정보
+                                </h3>
+
+                                <div class="space-y-1.5">
+                                    <label for="challengeName" class="block font-semibold text-slate-700">
+                                        챌린지 이름 <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="text" id="challengeName" th:field="*{challengeName}"
+                                           placeholder="챌린지 이름을 입력하세요" required
+                                           class="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-blue-500">
+                                </div>
+                            </div>
+
+                            <div class="text-[11px] text-slate-400 pt-2">
+                                등록된 챌린지는 사용자 화면의 여행 챌린지 목록에 즉시 반영됩니다.
+                            </div>
+                        </div>
+
+                        <!-- 블록 2: 상세 설명 -->
+                        <div class="space-y-4 bg-slate-50/50 p-5 rounded-xl border border-slate-100 flex flex-col justify-between">
+                            <div class="space-y-4 h-full flex flex-col">
+                                <h3 class="font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                                    <i data-lucide="file-text" class="w-4 h-4 text-blue-600"></i> 상세 설명
+                                </h3>
+
+                                <div class="space-y-1.5 flex-1 flex flex-col">
+                                    <label for="challengeDescription" class="block font-semibold text-slate-700">
+                                        챌린지 설명
+                                    </label>
+                                    <textarea id="challengeDescription" th:field="*{challengeDescription}" rows="6"
+                                              placeholder="챌린지 상세 설명을 입력하세요"
+                                              class="w-full flex-1 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-blue-500 resize-none"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- 하단 버튼 영역 -->
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-2">
+                        <a th:href="@{/challengelist}" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-colors">취소</a>
+                        <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition-all">등록하기</button>
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+</main>
+
+<!-- Footer 영역 -->
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<!-- Script Initialization -->
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>

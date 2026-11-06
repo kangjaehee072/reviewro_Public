@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<aside th:fragment="menu(active)" class="mypage-menu">
+    <div class="mypage-profile">
+        <img class="avatar-lg" alt=""
+             th:src="${loginMember.memberProfileImagePath != null} ? ${loginMember.memberProfileImagePath} : @{/img/default-profile.svg}">
+        <div class="name" th:text="${loginMember.memberNickname}">닉네임</div>
+        <div class="id" th:text="'@' + ${loginMember.memberUserId}">@userId</div>
+    </div>
+    <nav>
+        <a th:href="@{/mypage}" th:classappend="${active == 'info'} ? 'on'">
+            <i data-lucide="user" class="w-4 h-4"></i> 내 정보
+        </a>
+        <a th:href="@{/mypage/edit}" th:classappend="${active == 'edit'} ? 'on'">
+            <i data-lucide="settings" class="w-4 h-4"></i> 개인정보 변경
+        </a>
+        <a th:href="@{/mypage/travelplan}" th:classappend="${active == 'travelplan'} ? 'on'">
+            <i data-lucide="calendar" class="w-4 h-4"></i> 내 여행 계획
+        </a>
+        <a th:href="@{/mypage/photomap}" th:classappend="${active == 'photomap'} ? 'on'">
+            <i data-lucide="map-pin" class="w-4 h-4"></i> 내 포토맵
+        </a>
+        <a th:href="@{/mypage/challenges}" th:classappend="${active == 'challenges'} ? 'on'">
+            <i data-lucide="bookmark" class="w-4 h-4"></i> 저장한 챌린지
+        </a>
+        <a th:href="@{/mypage/reviews}" th:classappend="${active == 'reviews'} ? 'on'">
+            <i data-lucide="file-text" class="w-4 h-4"></i> 작성한 리뷰
+        </a>
+        <a th:href="@{/mypage/checklist}" th:classappend="${active == 'checklist'} ? 'on'">
+            <i data-lucide="check-square" class="w-4 h-4"></i> 여행 체크리스트
+        </a>
+    </nav>
+</aside>
+
+</body>
+</html>

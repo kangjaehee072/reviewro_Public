@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>장소 상세 정보</title>
+</head>
+<body>
+<div>
+    <table class="detail-table">
+        <tr>
+            <th>번호</th>
+            <td th:text="${location.locationId}">1</td>
+            <th>카테고리</th>
+            <td th:text="${location.locationCategory}">음식점</td>
+        </tr>
+        <tr>
+            <th>장소명</th>
+            <td th:text="${location.locationName}">서울 맛집</td>
+            <th>별점</th>
+            <td th:text="${location.locationReviewAvg}">0.0</td>
+        </tr>
+        <tr>
+            <th>도로명주소</th>
+            <td colspan="3" th:text="${location.locationAddress}">서울특별시 강남구 테헤란로 123</td>
+        </tr>
+        <tr>
+            <th>구주소</th>
+            <td colspan="3" th:text="${location.locationAddressTw}">서울특별시 강남구 역삼동 123-45</td>
+        </tr>
+        <tr>
+            <th>전화번호</th>
+            <td th:text="${location.locationNumber}">02-123-4567</td>
+            <th>홈페이지</th>
+            <td>
+                <a th:if="${location.locationURL}"
+                   th:href="${location.locationURL}"
+                   th:text="${location.locationURL}"
+                   target="_blank">홈페이지 방문</a>
+                <span th:unless="${location.locationURL}">-</span>
+            </td>
+        </tr>
+        <tr>
+            <th>운영시간</th>
+            <td th:text="${location.locationOpentime != null && location.locationClosetime != null} ? |${location.locationOpentime} ~ ${location.locationClosetime}| : '-'">09:00 ~ 22:00</td>
+            <th>오행속성</th>
+            <td th:text="${location.locationElement}">목(木)</td>
+        </tr>
+        <tr>
+            <th>운영일</th>
+            <td th:text="${location.locationDayofweek}">월,화,수,목,금</td>
+            <th>휴무일</th>
+            <td th:text="${location.locationDayoff}">토,일</td>
+        </tr>
+        <tr>
+            <th>상세설명</th>
+            <td colspan="3" class="content-box" th:text="${location.locationDescription}">
+                장소 상세 내용입니다.
+            </td>
+        </tr>
+    </table>
+
+    <div class="btn-container">
+        <!-- 목록으로 버튼 -->
+        <a th:href="@{/locationlist}" class="btn btn-list">목록으로</a>
+
+        <!-- 수정 버튼 (GET /locationupdate?id=...) -->
+        <form th:action="@{/locationupdate}" method="get" style="display: inline;">
+            <input type="hidden" name="id" th:value="${location.locationId}">
+            <button type="submit" class="btn btn-edit">수정</button>
+        </form>
+
+        <!-- 삭제 버튼 (@DeleteMapping("locationdelete") 대응) -->
+        <form th:action="@{/locationdelete}" method="post" style="display: inline;">
+            <!-- Spring HiddenHttpMethodFilter 적용 시 DELETE 메소드로 변환 -->
+            <input type="hidden" name="_method" value="delete"/>
+            <input type="hidden" name="id" th:value="${location.locationId}">
+            <button type="submit"
+                    class="btn btn-delete"
+                    onclick="return confirm('정말 삭제하시겠습니까?');">삭제</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

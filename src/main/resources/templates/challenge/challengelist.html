@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('챌린지 관리')}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReviewRo - 챌린지 관리</title>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between bg-slate-100">
+
+<!-- 1. Nav / Header 영역 -->
+<header th:replace="~{fragments/layout :: header('contents')}"></header>
+
+<!-- Main Container (사이드바 & 메인 영역 분리) -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-1">
+    <div class="flex flex-col lg:flex-row items-start gap-6">
+
+        <!-- ==================== [좌측 사이드바] (챌린지 메뉴 활성화) ==================== -->
+        <aside th:replace="~{fragments/admin-menu :: menu('challenges')}"></aside>
+
+        <!-- ==================== [우측 메인 콘텐츠 영역] ==================== -->
+        <section class="flex-1 w-full space-y-6">
+
+            <!-- 에러 및 성공 메시지 알림 -->
+            <div th:if="${errorMessage}" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-xs font-semibold shadow-sm" th:text="${errorMessage}"></div>
+            <div th:if="${successMessage}" class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-2xl text-xs font-semibold shadow-sm" th:text="${successMessage}"></div>
+
+            <!-- 1. 서치영역 (Search Area) -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <form action="#" method="get" class="flex flex-col sm:flex-row items-center gap-3">
+                    <select name="searchType" class="w-full sm:w-36 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:border-blue-500">
+                        <option value="name">챌린지 이름</option>
+                        <option value="description">설명</option>
+                    </select>
+
+                    <div class="relative flex-1 w-full">
+                        <input type="text" name="keyword" placeholder="검색할 챌린지명을 입력하세요..."
+                               class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3"></i>
+                    </div>
+
+                    <button type="submit" class="w-full sm:w-auto px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5">
+                        <i data-lucide="search" class="w-3.5 h-3.5"></i>
+                        <span>검색</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- 2. 컬럼 헤더 & 등록 버튼 (Table Header & Action) -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden space-y-0">
+
+                <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+                    <div>
+                        <h1 class="text-lg font-bold text-slate-900">챌린지 목록</h1>
+                        <p class="text-xs text-slate-500 mt-0.5">여행 챌린지에 도전하고 관리할 수 있습니다.</p>
+                    </div>
+
+                    <!-- 새 챌린지 등록 버튼 (기존 링크 유지) -->
+                    <a th:href="@{/challengeinsert}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-md transition-all flex items-center gap-1.5">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>새 챌린지 등록</span>
+                    </a>
+                </div>
+
+                <!-- 3. 메인 데이터 목록 리스트 (Table) -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 text-slate-500 uppercase font-semibold border-b border-slate-100">
+                        <tr>
+                            <th class="py-3.5 px-5 w-16 text-center">번호</th>
+                            <th class="py-3.5 px-5 w-48">챌린지 이름</th>
+                            <th class="py-3.5 px-5">설명</th>
+                            <th class="py-3.5 px-5 w-24 text-center">상세보기</th>
+                        </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-700">
+                        <!-- 반복 데이터 영역 -->
+                        <tr th:each="challenge : ${challenges}" class="hover:bg-slate-50/80 transition-colors">
+                            <td class="py-4 px-5 text-center font-medium text-slate-400" th:text="${challenge.challengeId}">1</td>
+                            <td class="py-4 px-5 font-bold text-slate-900" th:text="${challenge.challengeName}">챌린지 이름</td>
+                            <td class="py-4 px-5 text-slate-600 muted" th:text="${#strings.abbreviate(challenge.challengeDescription, 40)}">
+                                챌린지 설명...
+                            </td>
+                            <td class="py-4 px-5 text-center">
+                                <a th:href="@{/challengeread/{id}(id=${challenge.challengeId})}"
+                                   class="px-3 py-1.5 bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-slate-700 font-semibold rounded-lg transition-colors inline-block">보기</a>
+                            </td>
+                        </tr>
+                        <!-- 데이터가 없을 때 -->
+                        <tr th:if="${#lists.isEmpty(challenges)}">
+                            <td colspan="4" class="py-8 text-center text-slate-400 table-empty">등록된 챌린지가 없습니다.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 4. 페이지네이션 (Pagination) -->
+                <div class="p-4 border-t border-slate-100 flex items-center justify-center gap-1 text-xs">
+                    <a href="#" class="p-2 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors">
+                        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                    </a>
+                    <a href="#" class="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-600 text-white font-bold shadow-sm">1</a>
+                    <a href="#" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 font-medium transition-colors">2</a>
+                    <a href="#" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 font-medium transition-colors">3</a>
+                    <a href="#" class="p-2 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors">
+                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+</main>
+
+<!-- Footer 영역 -->
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<!-- Script Initialization -->
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>

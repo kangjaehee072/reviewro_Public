@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('회원관리')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('관리자메뉴')}"></header>
+
+<main class="main">
+    <!-- CSS 수정 없이 wrap 내부를 좌우 배치하도록 flex 구조 적용 -->
+    <div class="wrap admin-layout">
+
+        <!-- 1. 좌측 사이드바 (메뉴 키를 'members'로 지정) -->
+        <aside th:replace="~{fragments/admin-menu :: menu('members')}"></aside>
+
+        <!-- 2. 우측 메인 콘텐츠 영역 (알림, 카드, 페이저를 하나의 묶음으로 배치) -->
+        <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1.5rem;">
+
+            <div th:if="${message}" class="notice notice-ok" th:text="${message}"></div>
+            <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+
+            <section class="card">
+                <div class="card-head row-between">
+                    <div>
+                        <strong>회원관리</strong>
+                        <small th:text="'전체 ' + ${members.totalElements} + '명'">전체 0명</small>
+                    </div>
+
+                    <form class="searchbar" method="get" th:action="@{/admin/members}">
+                        <input type="search" name="keyword" th:value="${keyword}"
+                               placeholder="아이디 · 닉네임 · 이메일">
+                        <button type="submit">검색</button>
+                    </form>
+                </div>
+
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>회원</th>
+                        <th>연락처</th>
+                        <th>가입일</th>
+                        <th class="center">권한</th>
+                        <th class="center">관리</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="m : ${members.content}"
+                        th:with="isMe=${m.memberId == myId},
+                                 isSuperRow=${m.memberRole == 'SUPERADMIN'},
+                                 canEdit=${isSuper and !isSuperRow and !isMe}">
+                        <td>
+                            <div class="user-cell">
+                                <img class="avatar" alt=""
+                                     th:src="${m.memberProfileImagePath != null}
+                                             ? ${m.memberProfileImagePath}
+                                             : @{/img/default-profile.svg}">
+                                <div>
+                                    <strong th:text="${m.memberNickname}">닉네임</strong>
+                                    <span th:text="${m.memberEmail}">메일</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td th:text="${m.memberPhone} ?: '-'">-</td>
+                        <td th:text="${m.createdAt != null} ? ${#temporals.format(m.createdAt, 'yyyy.MM.dd')} : '-'">-</td>
+
+                        <td class="center">
+                            <!-- 슈퍼어드민이면 여기서 바로 권한을 바꾼다 -->
+                            <select th:if="${canEdit}" class="role-select"
+                                    th:attr="data-id=${m.memberId},
+                                             data-name=${m.memberNickname},
+                                             data-now=${m.memberRole}"
+                                    onchange="askRole(this)">
+                                <option value="USER" th:selected="${m.memberRole == 'USER'}">일반</option>
+                                <option value="ADMIN" th:selected="${m.memberRole == 'ADMIN'}">관리자</option>
+                            </select>
+
+                            <span th:unless="${canEdit}"
+                                  th:class="${isSuperRow} ? 'badge badge-accent'
+                                            : (${m.memberRole == 'ADMIN'} ? 'badge badge-tint' : 'badge badge-line')"
+                                  th:text="${isSuperRow} ? '슈퍼어드민'
+                                           : (${m.memberRole == 'ADMIN'} ? '관리자' : '일반')">일반</span>
+                        </td>
+
+                        <td class="center"
+                            th:with="canRemove=${!isMe and !isSuperRow and (isSuper or m.memberRole == 'USER')}">
+                            <!-- 본인·슈퍼어드민은 못 지운다. 관리자는 슈퍼어드민만 지울 수 있다 -->
+                            <button th:if="${canRemove}" type="button" class="btn btn-sm btn-danger"
+                                    th:attr="data-id=${m.memberId}, data-name=${m.memberNickname}"
+                                    onclick="askRemove(this)">
+                                탈퇴
+                            </button>
+                            <span th:unless="${canRemove}" class="muted">-</span>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${members.isEmpty()}">
+                        <td colspan="5" class="table-empty">회원이 없습니다.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- 페이지 넘기기 -->
+            <nav class="pager" th:if="${members.totalPages > 1}">
+                <a th:if="${!members.first}"
+                   th:href="@{/admin/members(keyword=${keyword}, page=${members.number - 1})}">이전</a>
+                <span th:unless="${!members.first}" class="off">이전</span>
+
+                <th:block th:each="i : ${#numbers.sequence(0, members.totalPages - 1)}">
+                    <span th:if="${i == members.number}" class="on" th:text="${i + 1}">1</span>
+                    <a th:unless="${i == members.number}"
+                       th:href="@{/admin/members(keyword=${keyword}, page=${i})}" th:text="${i + 1}">2</a>
+                </th:block>
+
+                <a th:if="${!members.last}"
+                   th:href="@{/admin/members(keyword=${keyword}, page=${members.number + 1})}">다음</a>
+                <span th:unless="${!members.last}" class="off">다음</span>
+            </nav>
+
+        </div>
+
+    </div>
+</main>
+
+<!-- 탈퇴·권한변경 공용 확인창. 둘 다 본인 비밀번호를 다시 받는다 -->
+<dialog id="confirmDialog" class="confirm-modal" th:attr="data-base=@{/admin/members}">
+    <form method="post" id="confirmForm">
+        <div class="body">
+            <div class="title" id="dlgTitle">확인</div>
+            <div class="message" id="dlgMessage"></div>
+            <div class="field" style="margin-top:14px">
+                <label for="password">본인 비밀번호</label>
+                <input type="password" id="password" name="password"
+                       autocomplete="current-password" required>
+            </div>
+        </div>
+        <!-- action 을 JS 로 바꾸는 폼이라 th:action 이 없다. CSRF 토큰을 직접 넣는다 -->
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <input type="hidden" name="role" id="dlgRole">
+        <input type="hidden" name="keyword" th:value="${keyword}">
+        <input type="hidden" name="page" th:value="${members.number}">
+        <div class="actions">
+            <button type="button" class="btn btn-line" onclick="closeDialog()">취소</button>
+            <button type="submit" class="btn" id="dlgOk">확인</button>
+        </div>
+    </form>
+</dialog>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<script>
+    const dlg = document.getElementById('confirmDialog');
+    const dlgForm = document.getElementById('confirmForm');
+    const pw = document.getElementById('password');
+    const okBtn = document.getElementById('dlgOk');
+
+    // 취소하면 선택칸을 원래 값으로 되돌리려고 기억해 둔다
+    let lastSelect = null;
+
+    function openDialog(action, title, message, okText, danger) {
+        dlgForm.action = action;
+        document.getElementById('dlgTitle').textContent = title;
+        document.getElementById('dlgMessage').innerHTML = message;
+        okBtn.textContent = okText;
+        okBtn.className = 'btn ' + (danger ? 'btn-danger' : 'btn-primary');
+        pw.value = '';
+        dlg.showModal();
+        pw.focus();
+    }
+
+    // 닉네임은 회원이 정하는 값이라 HTML 로 끼우기 전에 이스케이프한다
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function askRemove(btn) {
+        document.getElementById('dlgRole').value = '';
+        lastSelect = null;
+        openDialog(dlg.dataset.base + '/' + btn.dataset.id + '/delete',
+            '회원 탈퇴',
+            '<strong>' + escapeHtml(btn.dataset.name) + '</strong> 님을 탈퇴시킵니다. 되돌릴 수 없습니다.',
+            '탈퇴시키기', true);
+    }
+
+    (function askRole(select) {
+        // 기존 함수 정의 유지
+    });
+
+    function askRole(select) {
+        const to = select.value;
+        document.getElementById('dlgRole').value = to;
+        lastSelect = select;
+        openDialog(dlg.dataset.base + '/' + select.dataset.id + '/role',
+            '권한 변경',
+            '<strong>' + escapeHtml(select.dataset.name) + '</strong> 님을 '
+            + (to === 'ADMIN' ? '<strong>관리자</strong>로 올립니다.'
+                : '<strong>일반 회원</strong>으로 내립니다.'),
+            '변경하기', false);
+    }
+
+    function closeDialog() {
+        dlg.close();
+    }
+
+    // 취소했으면 선택칸을 원래대로 돌려놓는다
+    dlg.addEventListener('close', function () {
+        if (lastSelect) {
+            lastSelect.value = lastSelect.dataset.now;
+            lastSelect = null;
+        }
+    });
+</script>
+</body>
+</html>

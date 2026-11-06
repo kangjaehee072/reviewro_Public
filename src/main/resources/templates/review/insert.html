@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('리뷰 쓰기')}"></head>
+<link rel="stylesheet" th:href="@{/css/board.css}">
+<body>
+<header th:replace="~{fragments/layout :: header('community')}"></header>
+
+<main class="main board board-review">
+    <div class="wrap">
+        <div class="board-form">
+
+            <a th:href="@{/review/list}" class="back-link"><i data-lucide="chevron-left" class="ico"></i>리뷰 목록</a>
+            <div class="board-form-head">
+                <h1>리뷰 쓰기</h1>
+                <p>다녀온 곳의 생생한 후기를 남겨 주세요</p>
+            </div>
+
+            <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+
+            <form class="card" th:action="@{/review/insert}" th:object="${reviewDto}" method="post"
+                  enctype="multipart/form-data">
+
+                <section class="form-section">
+                    <h2 class="form-section-title"><i data-lucide="file-text" class="ico"></i>기본 정보</h2>
+
+                    <div class="field">
+                        <label for="reviewTitle">제목<span class="req">*</span></label>
+                        <input type="text" id="reviewTitle" th:field="*{reviewTitle}" required maxlength="255"
+                               placeholder="한 줄로 요약하면 어떤 여행이었나요?">
+                    </div>
+
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="reviewCategory">카테고리</label>
+                            <select id="reviewCategory" th:field="*{reviewCategory}">
+                                <option value="힐링">힐링</option>
+                                <option value="액티비티">액티비티</option>
+                                <option value="맛집/카페">맛집/카페</option>
+                                <option value="명소/관광">명소/관광</option>
+                                <option value="숙소">숙소</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>별점<span class="req">*</span></label>
+                            <div data-widget="rating" data-editable="true"
+                                 data-name="reviewStarRating" data-value="0"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="form-section">
+                    <h2 class="form-section-title"><i data-lucide="map-pin" class="ico"></i>여행 정보</h2>
+
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="reviewArea">지역<span class="req">*</span></label>
+                            <input type="text" id="reviewArea" th:field="*{reviewArea}" required maxlength="100"
+                                   placeholder="예: 부산, 강원도, 제주">
+                        </div>
+                        <div class="field">
+                            <label for="reviewLocation">세부 장소<span class="req">*</span></label>
+                            <input type="text" id="reviewLocation" th:field="*{reviewLocation}" required maxlength="100"
+                                   placeholder="방문한 장소 이름">
+                        </div>
+                    </div>
+
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="reviewStartDate">여행 시작일</label>
+                            <input type="date" id="reviewStartDate" th:field="*{reviewStartDate}">
+                        </div>
+                        <div class="field">
+                            <label for="reviewEndDate">여행 종료일</label>
+                            <input type="date" id="reviewEndDate" th:field="*{reviewEndDate}">
+                        </div>
+                    </div>
+
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="reviewPeopleCount">인원</label>
+                            <input type="number" id="reviewPeopleCount" th:field="*{reviewPeopleCount}"  min="1"
+                                   placeholder="예: 2">
+                        </div>
+                        <div class="field">
+                            <label for="reviewVisitPurpose">방문 목적</label>
+                            <input type="text" id="reviewVisitPurpose" th:field="*{reviewVisitPurpose}"
+                                   maxlength="100" placeholder="예: 힐링, 데이트">
+                        </div>
+                        <div class="field">
+                            <label for="reviewCompanionType">동행</label>
+                            <input type="text" id="reviewCompanionType" th:field="*{reviewCompanionType}"
+                                   maxlength="100" placeholder="예: 친구, 연인, 가족">
+                        </div>
+                    </div>
+                </section>
+
+                <section class="form-section">
+                    <h2 class="form-section-title"><i data-lucide="pen-line" class="ico"></i>후기</h2>
+
+                    <div class="field">
+                        <label for="reviewContent">내용<span class="req">*</span></label>
+                        <textarea id="reviewContent" th:field="*{reviewContent}" maxlength="2000" rows="10" required
+                                  placeholder="좋았던 점, 아쉬웠던 점, 다른 여행자에게 주고 싶은 팁을 적어 주세요."></textarea>
+                    </div>
+
+                    <div class="field">
+                        <label for="images">사진</label>
+                        <div class="upload-box">
+                            <i data-lucide="image-plus" class="ico"></i>
+                            <div>
+                                <input type="file" id="images" name="images" accept="image/*" multiple>
+                                <small>여러 장 올릴 수 있어요. 첫 장이 목록 썸네일이 됩니다.</small>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="board-form-foot">
+                    <a th:href="@{/review/list}" class="btn btn-line">취소</a>
+                    <button type="submit" class="btn btn-board"><i data-lucide="check" class="ico"></i>등록하기</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script type="module" th:src="@{/js/dist/board.js}"></script>
+<th:block th:replace="~{fragments/board :: icons}"></th:block>
+<script>
+    // 종료일은 시작일보다 앞을 못 고르게
+    const start = document.getElementById('reviewStartDate');
+    const end = document.getElementById('reviewEndDate');
+    start.addEventListener('change', () => { end.min = start.value; });
+</script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('일정 템플릿 마켓')}"></head>
+<link rel="stylesheet" th:href="@{/css/board.css}">
+<body>
+<header th:replace="~{fragments/layout :: header('community')}"></header>
+
+<main class="main board board-market">
+    <div class="wrap">
+
+        <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+        <div th:if="${successMessage}" class="notice notice-ok" th:text="${successMessage}"></div>
+
+        <th:block th:with="writer=${tripPlanDto.tripplanName ?: '여행자'},
+                           isOwner=${loginMemberId != null and loginMemberId == tripPlanDto.memberId}">
+
+        <article class="card post">
+            <header class="post-head">
+                <div class="post-badges">
+                    <span class="badge badge-board"
+                          th:text="${#lists.isEmpty(tripPlanDto.tripDays)} ? '여행 일정' : ${#lists.size(tripPlanDto.tripDays)} + '일 일정'">3일 일정</span>
+                    <span th:if="${tripPlanDto.tripplanIsPublic == false}" class="badge badge-line">비공개</span>
+                </div>
+                <h1 class="post-title" th:text="${tripPlanDto.tripplanTitle}">제목</h1>
+
+                <div class="post-meta">
+                    <span>
+                        <span class="post-avatar" th:text="${#strings.substring(writer, 0, 1)}">김</span>
+                        <span class="post-author" th:text="${writer}">작성자</span>
+                    </span>
+                    <span><i data-lucide="download" class="ico"></i>퍼감 <span th:text="${tripPlanDto.tripplanShareCount ?: 0}">0</span></span>
+                </div>
+            </header>
+
+            <div class="post-body" th:if="${!#strings.isEmpty(tripPlanDto.tripplanContent)}">
+                <div class="post-content" th:text="${tripPlanDto.tripplanContent}">소개</div>
+            </div>
+
+            <footer class="post-foot">
+                <a th:href="@{/tripplan/list}" class="btn btn-line">
+                    <i data-lucide="list" class="ico"></i>목록
+                </a>
+
+                <div class="owner-actions" th:if="${isOwner}">
+                    <a th:href="@{/tripplan/update/{id}(id=${tripPlanDto.tripplanId})}" class="btn btn-line">
+                        <i data-lucide="pencil" class="ico"></i>수정
+                    </a>
+                    <form th:action="@{/tripplan/delete}" method="post" class="inline-form"
+                          onsubmit="return confirm('이 일정을 마켓에서 내릴까요? 이미 퍼간 사람의 일정은 그대로 남아요.');">
+                        <input type="hidden" name="tripPlanId" th:value="${tripPlanDto.tripplanId}">
+                        <button type="submit" class="btn btn-danger-ghost">
+                            <i data-lucide="trash-2" class="ico"></i>삭제
+                        </button>
+                    </form>
+                </div>
+            </footer>
+        </article>
+
+        <!-- 남의 일정이면 퍼가기를 가장 눈에 띄게 -->
+        <div class="fork-box" th:unless="${isOwner}">
+            <div class="fork-box-text">
+                <b>이 일정, 마음에 드세요?</b>
+                <p>내 여행 계획으로 그대로 복사해서 날짜와 장소를 내 맘대로 고칠 수 있어요.</p>
+            </div>
+            <button type="button" class="btn btn-board btn-lg"
+                    onclick="document.getElementById('forkModal').showModal()">
+                <i data-lucide="download" class="ico"></i>내 일정으로 퍼가기
+            </button>
+        </div>
+
+        <dialog id="forkModal" class="modal" th:unless="${isOwner}">
+            <div class="modal-head">
+                <strong>내 여행계획으로 퍼가기</strong>
+                <button type="button" class="modal-close" aria-label="닫기"
+                        onclick="this.closest('dialog').close()">&times;</button>
+            </div>
+            <form th:action="@{/tripplan/fork/{id}(id=${tripPlanDto.tripplanId})}" method="post" class="modal-body">
+                <div class="field">
+                    <label for="forkTitle">저장할 제목</label>
+                    <input type="text" id="forkTitle" name="title" maxlength="100" required
+                           th:value="${tripPlanDto.tripplanTitle}">
+                </div>
+                <p class="hint">장소 페이지 '여행 계획 짜기'의 내 여행계획에 추가돼요.</p>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-line" onclick="this.closest('dialog').close()">취소</button>
+                    <button type="submit" class="btn btn-board">확인</button>
+                </div>
+            </form>
+        </dialog>
+
+        <section class="section">
+            <div class="section-head">
+                <h2>여행 일정</h2>
+            </div>
+
+            <div th:if="${#lists.isEmpty(tripPlanDto.tripDays)}" class="card board-empty">
+                <div class="board-empty-icon"><i data-lucide="calendar-x" class="ico ico-lg"></i></div>
+                <p>등록된 일정이 없어요.</p>
+            </div>
+
+            <div class="trip-days" th:unless="${#lists.isEmpty(tripPlanDto.tripDays)}">
+                <div th:each="day, dayStat : ${tripPlanDto.tripDays}" class="trip-day">
+                    <div class="trip-day-head">
+                        <span class="trip-day-label"
+                              th:text="${#strings.isEmpty(day.tripDayNumber)} ? 'DAY ' + ${dayStat.count} : ${day.tripDayNumber}">DAY 1</span>
+                    </div>
+
+                    <p th:if="${#lists.isEmpty(day.tripPlaces)}" class="hint">이 날은 아직 장소가 없어요.</p>
+
+                    <ol class="trip-stops" th:unless="${#lists.isEmpty(day.tripPlaces)}">
+                        <li th:each="place, placeStat : ${day.tripPlaces}" class="trip-stop">
+                            <span class="trip-stop-num"
+                                  th:text="${#strings.isEmpty(place.tripPlaceSequence)} ? ${placeStat.count} : ${place.tripPlaceSequence}">1</span>
+                            <div class="trip-stop-body">
+                                <b th:text="${#strings.isEmpty(place.tripPlaceMemo)} ? '장소 #' + ${place.locationId} : ${place.tripPlaceMemo}">해운대 해수욕장</b>
+                                <p th:if="${place.locationId != null}" th:text="'장소 번호 ' + ${place.locationId}">장소 번호 10</p>
+                            </div>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        </th:block>
+
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/board :: icons}"></th:block>
+</body>
+</html>

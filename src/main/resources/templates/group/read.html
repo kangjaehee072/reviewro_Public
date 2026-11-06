@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head(${group.groupName})}"></head>
+<link rel="stylesheet" th:href="@{/css/board.css}">
+<body>
+<header th:replace="~{fragments/layout :: header('community')}"></header>
+
+<main class="main board board-group">
+    <div class="wrap">
+
+        <section class="board-hero">
+            <div class="board-hero-icon"><i data-lucide="users-round" class="ico ico-lg"></i></div>
+            <div class="board-hero-text">
+                <span class="board-eyebrow">여행 그룹</span>
+                <h1 th:text="${group.groupName}">그룹 이름</h1>
+                <p th:text="${'만든 사람 ' + group.ownerNickname}">만든 사람 닉네임</p>
+            </div>
+            <div class="board-hero-actions">
+                <a th:href="@{/groups}" class="btn btn-line"><i data-lucide="arrow-left" class="ico"></i>내 그룹</a>
+                <form th:if="${group.ownerId == myId}" th:action="@{/groups/{id}/delete(id=${group.groupId})}"
+                      method="post" data-confirm="그룹을 삭제하면 공유 기록과 채팅이 모두 사라져요. 삭제할까요?">
+                    <button type="submit" class="btn btn-danger">그룹 삭제</button>
+                </form>
+                <form th:unless="${group.ownerId == myId}" th:action="@{/groups/{id}/leave(id=${group.groupId})}"
+                      method="post" data-confirm="그룹에서 나가면 내가 공유한 여행계획도 내려가요. 나갈까요?">
+                    <button type="submit" class="btn btn-line">나가기</button>
+                </form>
+            </div>
+        </section>
+
+        <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+        <div th:if="${successMessage}" class="notice notice-ok" th:text="${successMessage}"></div>
+
+        <!-- id 가 붙은 칸(memberCount, memberList, inviteCodeBox, planArea)은
+             바뀔 때마다 이 페이지를 다시 받아 그 칸만 갈아 끼운다 (group-page.js) -->
+        <div class="group-layout" id="groupPage" th:attr="data-base=@{/groups/{id}(id=${group.groupId})},
+                     data-list=@{/groups}">
+            <div class="group-main">
+
+                <!-- 구성원 + 초대 -->
+                <section class="card">
+                    <div class="group-section-head">
+                        <span>구성원 <small id="memberCount" th:text="${group.memberCount} + '명'">3명</small></span>
+                        <small>점선은 초대 수락 대기</small>
+                    </div>
+                    <div class="group-members" id="memberList">
+                        <span th:each="m : ${members}" class="group-member"
+                              th:classappend="${m.status.name() == 'INVITED'} ? 'invited'">
+                            <img alt="" th:src="${m.profileImagePath != null} ? ${m.profileImagePath} : @{/img/default-profile.svg}">
+                            <span th:text="${m.nickname}">닉네임</span>
+                            <span th:if="${m.owner}" class="tag">방장</span>
+                        </span>
+                    </div>
+
+                    <form class="group-inline-form group-invite-form" id="inviteForm" autocomplete="off">
+                        <!-- 입력칸 위에 뜨는 검색 결과 (최대 5명) -->
+                        <ul class="group-suggest" id="inviteSuggest" hidden></ul>
+                        <input type="text" name="nickname" id="inviteInput" maxlength="30" required
+                               placeholder="닉네임 일부 또는 정확한 아이디 (2글자 이상)">
+                        <button type="submit" class="btn btn-board"><i data-lucide="user-plus" class="ico"></i>초대</button>
+                    </form>
+
+                    <div class="group-code" id="inviteCodeBox">
+                        <th:block th:if="${group.inviteCode != null}">
+                            <span>초대코드</span>
+                            <code th:text="${group.inviteCode}">ABCD2345</code>
+                            <button type="button" class="btn btn-sm btn-line" th:attr="data-copy=${group.inviteCode}">코드 복사</button>
+                            <button type="button" class="btn btn-sm btn-line"
+                                    th:attr="data-copy-link=@{/groups(code=${group.inviteCode})}">링크 복사</button>
+                            <small class="hint" th:if="${group.inviteCodeExpiresAt != null}"
+                                   th:text="${#temporals.format(group.inviteCodeExpiresAt, 'MM.dd HH:mm')} + '까지'">10.30 12:00까지</small>
+                        </th:block>
+                        <span th:if="${group.inviteCode == null}" class="hint"
+                              th:text="${group.ownerId == myId} ? '초대코드를 만들면 코드를 아는 회원이 7일 동안 바로 들어올 수 있어요.' : '지금 쓸 수 있는 초대코드가 없어요. 방장에게 새 코드를 부탁해 주세요.'">
+                            안내</span>
+                        <button th:if="${group.ownerId == myId}" type="button" class="btn btn-sm btn-board" id="genCode"
+                                th:text="${group.inviteCode == null} ? '초대코드 생성' : '새 코드로 바꾸기'">초대코드 생성</button>
+                    </div>
+                </section>
+
+                <!-- 공유된 여행계획 -->
+                <section class="card" id="planArea">
+                    <div class="group-section-head">
+                        <span>공유된 여행계획 <small th:text="${#lists.size(plans)} + '개'">0개</small></span>
+                    </div>
+                    <div th:if="${#lists.isEmpty(plans)}" class="group-empty">
+                        아직 공유된 여행계획이 없어요. 아래에서 내 계획을 공유해 보세요.
+                    </div>
+                    <div th:each="p : ${plans}" class="group-plan">
+                        <a class="title" th:href="@{/groups/{id}/plans/{planId}(id=${group.groupId}, planId=${p.planId})}">
+                            <strong th:text="${p.planTitle}">계획 제목</strong>
+                            <span th:text="${(p.planStartDate ?: '?') + ' ~ ' + (p.planEndDate ?: '?') + ' · ' + p.sharedByNickname + ' 님이 공유'}">기간 · 닉네임</span>
+                        </a>
+                        <button th:if="${p.sharedById == myId or group.ownerId == myId}" type="button"
+                                class="btn btn-sm btn-line" data-unshare
+                                th:attr="data-url=@{/groups/{id}/plans/{planId}/unshare(id=${group.groupId}, planId=${p.planId})}">
+                            내리기</button>
+                    </div>
+                    <form class="group-inline-form group-share" id="shareForm">
+                        <select name="planId" required th:disabled="${#lists.isEmpty(myPlans)}">
+                            <option value="" th:text="${#lists.isEmpty(myPlans)} ? '공유할 내 여행계획이 없어요' : '공유할 내 여행계획 고르기'">고르기</option>
+                            <option th:each="mp : ${myPlans}" th:value="${mp.planId}"
+                                    th:text="${mp.planTitle + ' (' + (mp.planStartDate ?: '?') + ' ~ ' + (mp.planEndDate ?: '?') + ')'}">계획</option>
+                        </select>
+                        <button type="submit" class="btn btn-board" th:disabled="${#lists.isEmpty(myPlans)}">
+                            <i data-lucide="share-2" class="ico"></i>공유
+                        </button>
+                    </form>
+                </section>
+
+            </div>
+
+            <aside th:replace="~{group/fragments :: chatPanel}"></aside>
+        </div>
+
+    </div>
+</main>
+
+<div class="group-toast" id="groupToast" hidden></div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/board :: icons}"></th:block>
+<th:block th:replace="~{fragments/chat :: script(@{/groups/{id}(id=${group.groupId})})}"></th:block>
+<script th:src="@{/js/group-page.js}"></script>
+</body>
+</html>

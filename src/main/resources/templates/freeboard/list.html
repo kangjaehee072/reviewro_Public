@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('자유게시판')}"></head>
+<link rel="stylesheet" th:href="@{/css/board.css}">
+<body>
+<header th:replace="~{fragments/layout :: header('community')}"></header>
+
+<main class="main board board-free">
+    <div class="wrap">
+
+        <section class="board-hero">
+            <div class="board-hero-icon"><i data-lucide="message-square" class="ico ico-lg"></i></div>
+            <div class="board-hero-text">
+                <span class="board-eyebrow">소통 공간</span>
+                <h1>자유게시판</h1>
+                <p>여행 팁, 준비물 질문, 소소한 이야기까지 자유롭게 나눠요</p>
+            </div>
+            <div class="board-hero-actions">
+                <a th:href="@{/freeboard/insert}" class="btn btn-board">
+                    <i data-lucide="pen-line" class="ico"></i>글쓰기
+                </a>
+            </div>
+        </section>
+
+        <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+        <div th:if="${successMessage}" class="notice notice-ok" th:text="${successMessage}"></div>
+
+        <div class="board-toolbar">
+            <span class="board-count">전체 <b th:text="${freeBoard.totalElements}">0</b>개</span>
+            <form class="board-search" th:action="@{/freeboard/list}" method="get" role="search">
+                <i data-lucide="search" class="ico"></i>
+                <input type="search" name="keyword" th:value="${keyword}" placeholder="제목으로 검색">
+                <button type="submit">검색</button>
+            </form>
+        </div>
+
+        <div class="card board-list">
+            <div th:if="${freeBoard.empty}" class="board-empty">
+                <div class="board-empty-icon"><i data-lucide="message-square" class="ico ico-lg"></i></div>
+                <p th:text="${keyword != null and !keyword.isBlank()} ? '검색 결과가 없어요.' : '아직 글이 없어요. 첫 이야기를 꺼내 보세요!'">
+                    아직 글이 없어요.</p>
+                <a th:href="@{/freeboard/insert}" class="btn btn-board btn-sm">글쓰기</a>
+            </div>
+
+            <table class="table" th:unless="${freeBoard.empty}">
+                <thead>
+                <tr>
+                    <th class="num col-hide">번호</th>
+                    <th>제목</th>
+                    <th class="center col-hide">작성자</th>
+                    <th class="center col-hide">작성일</th>
+                    <th class="center">공유</th>
+                    <th class="center">좋아요</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="f : ${freeBoard.content}">
+                    <td class="num col-hide" th:text="${f.freeBoardId}">1</td>
+                    <td>
+                        <a class="post-cell" th:href="@{/freeboard/read/{id}(id=${f.freeBoardId})}">
+                            <img th:if="${f.thumbnail != null}" th:src="${f.thumbnail}" class="post-cell-thumb" alt="">
+                            <span class="post-cell-text">
+                                <span class="post-cell-subline">
+                                    <span class="post-cell-title" th:text="${f.freeBoardTitle}">제목</span>
+                                    <span class="post-cell-likes"><i data-lucide="heart" class="ico"></i><span th:text="${f.likeCount}">0</span></span>
+                                </span>
+                            </span>
+                        </a>
+                    </td>
+                    <td class="center col-hide" th:text="${f.freeBoardName ?: '회원'}">작성자</td>
+                    <td class="center nowrap col-hide" th:text="${f.freeBoardDate}">2026-06-07</td>
+                    <td class="center" th:text="${f.freeBoardShareCount ?: 0}">0</td>
+                    <td class="center nowrap" th:text="${f.likeCount}">0</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <nav class="pager" th:if="${freeBoard.totalPages > 1}"
+             th:with="blockSize=10,
+              start=${(freeBoard.number / blockSize) * blockSize},
+              end=${((start + blockSize - 1) < freeBoard.totalPages) ? (start + blockSize - 1) : (freeBoard.totalPages - 1)}">
+
+            <a th:if="${!freeBoard.first}"
+               th:href="@{/freeboard/list(keyword=${keyword}, page=${freeBoard.number - 1})}">이전</a>
+            <span th:unless="${!freeBoard.first}" class="off">이전</span>
+
+            <th:block th:each="i : ${#numbers.sequence(start, end)}">
+                <span th:if="${i == freeBoard.number}" class="on" th:text="${i + 1}">1</span>
+                <a th:unless="${i == freeBoard.number}"
+                   th:href="@{/freeboard/list(keyword=${keyword}, page=${i})}" th:text="${i + 1}">2</a>
+            </th:block>
+
+            <a th:if="${!freeBoard.last}"
+               th:href="@{/freeboard/list(keyword=${keyword}, page=${freeBoard.number + 1})}">다음</a>
+            <span th:unless="${!freeBoard.last}" class="off">다음</span>
+        </nav>
+
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/board :: icons}"></th:block>
+</body>
+</html>

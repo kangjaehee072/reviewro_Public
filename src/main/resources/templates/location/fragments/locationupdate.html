@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>장소 정보 수정</title>
+</head>
+<body>
+<div>
+    <h2>장소 정보 수정</h2>
+
+    <form th:action="@{/locationupdate}" method="post">
+        <!-- PK(locationId) 값 숨김 전달 -->
+        <input type="hidden" name="locationId" th:value="${location.locationId}">
+
+        <div class="form-group">
+            <label for="locationName">장소 이름<span class="req">*</span></label>
+            <input type="text" id="locationName" name="locationName" th:value="${location.locationName}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="locationCategory">카테고리<span class="req">*</span></label>
+            <select id="locationCategory" name="locationCategory" required>
+                <option value="" disabled>카테고리를 선택해주세요</option>
+                <option value="음식점" th:selected="${location.locationCategory == '음식점'}">음식점</option>
+                <option value="카페/디저트" th:selected="${location.locationCategory == '카페/디저트'}">카페/디저트</option>
+                <option value="자연/관광명소" th:selected="${location.locationCategory == '자연/관광명소'}">자연/관광명소</option>
+                <option value="숙박" th:selected="${location.locationCategory == '숙박'}">숙박</option>
+                <option value="문화/예술" th:selected="${location.locationCategory == '문화/예술'}">문화/예술</option>
+                <option value="액티비티/체험" th:selected="${location.locationCategory == '액티비티/체험'}">액티비티/체험</option>
+                <option value="축제/행사" th:selected="${location.locationCategory == '축제/행사'}">축제/행사</option>
+                <option value="쇼핑" th:selected="${location.locationCategory == '쇼핑'}">쇼핑</option>
+                <option value="교통/편의" th:selected="${location.locationCategory == '교통/편의'}">교통/편의</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="locationAddress">도로명주소<span class="req">*</span></label>
+            <input type="text" id="locationAddress" name="locationAddress" th:value="${location.locationAddress}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="locationAddressTw">구주소</label>
+            <input type="text" id="locationAddressTw" name="locationAddressTw" th:value="${location.locationAddressTw}">
+        </div>
+
+        <div class="form-group">
+            <label for="locationNumber">전화번호<span class="req">*</span></label>
+            <input type="tel" id="locationNumber" name="locationNumber" th:value="${location.locationNumber}" required>
+        </div>
+
+        <div class="form-group">
+            <span>운영일<span class="req">*</span></span>
+            <label><input type="checkbox" name="locationDayofweek" value="mon" th:checked="${location.locationDayofweek != null && #strings.contains(location.locationDayofweek, 'mon')}"> 월</label>
+            <label><input type="checkbox" name="locationDayofweek" value="tue" th:checked="${location.locationDayofweek != null && #strings.contains(location.locationDayofweek, 'tue')}"> 화</label>
+            <label><input type="checkbox" name="locationDayofweek" value="wed" th:checked="${location.locationDayofweek != null && #strings.contains(location.locationDayofweek, 'wed')}"> 수</label>
+            <label><input type="checkbox" name="locationDayofweek" value="thu" th:checked="${location.locationDayofweek != null && #strings.contains(location.locationDayofweek, 'thu')}"> 목</label>
+            <label><input type="checkbox" name="locationDayofweek" value="fri" th:checked="${location.locationDayofweek != null && #strings.contains(location.locationDayofweek, 'fri')}"> 금</label>
+            <label><input type="checkbox" name="locationDayofweek" value="sat" th:checked="${location.locationDayofweek != null && #strings.contains(location.locationDayofweek, 'sat')}"> 토</label>
+            <label><input type="checkbox" name="locationDayofweek" value="sun" th:checked="${location.locationDayofweek != null && #strings.contains(location.locationDayofweek, 'sun')}"> 일</label>
+            <label><input type="checkbox" name="locationDayofweek" value="every" th:checked="${location.locationDayofweek != null && #strings.contains(location.locationDayofweek, 'every')}"> 연중무휴</label>
+        </div>
+
+        <div class="form-group">
+            <span>휴무일<span class="req">*</span></span>
+            <label><input type="checkbox" name="locationDayoff" value="mon" th:checked="${location.locationDayoff != null && #strings.contains(location.locationDayoff, 'mon')}"> 월</label>
+            <label><input type="checkbox" name="locationDayoff" value="tue" th:checked="${location.locationDayoff != null && #strings.contains(location.locationDayoff, 'tue')}"> 화</label>
+            <label><input type="checkbox" name="locationDayoff" value="wed" th:checked="${location.locationDayoff != null && #strings.contains(location.locationDayoff, 'wed')}"> 수</label>
+            <label><input type="checkbox" name="locationDayoff" value="thu" th:checked="${location.locationDayoff != null && #strings.contains(location.locationDayoff, 'thu')}"> 목</label>
+            <label><input type="checkbox" name="locationDayoff" value="fri" th:checked="${location.locationDayoff != null && #strings.contains(location.locationDayoff, 'fri')}"> 금</label>
+            <label><input type="checkbox" name="locationDayoff" value="sat" th:checked="${location.locationDayoff != null && #strings.contains(location.locationDayoff, 'sat')}"> 토</label>
+            <label><input type="checkbox" name="locationDayoff" value="sun" th:checked="${location.locationDayoff != null && #strings.contains(location.locationDayoff, 'sun')}"> 일</label>
+            <label><input type="checkbox" name="locationDayoff" value="holiday" th:checked="${location.locationDayoff != null && #strings.contains(location.locationDayoff, 'holiday')}"> 공휴일</label>
+        </div>
+
+        <div class="form-group">
+            <label>운영시간<span class="req">*</span></label>
+            <input type="time" id="locationOpentime" name="locationOpentime" th:value="${location.locationOpentime}" required> ~
+            <input type="time" id="locationClosetime" name="locationClosetime" th:value="${location.locationClosetime}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="locationURL">홈페이지 URL</label>
+            <input type="url" id="locationURL" name="locationURL" th:value="${location.locationURL}">
+        </div>
+
+        <div class="form-group">
+            <label for="locationElement">사주풀이용 오행속성</label>
+            <select id="locationElement" name="locationElement">
+                <option value="" disabled>장소에 맞는 오행을 선택해주세요</option>
+                <option value="wood" th:selected="${location.locationElement == 'wood'}">목(木)</option>
+                <option value="fire" th:selected="${location.locationElement == 'fire'}">화(火)</option>
+                <option value="earth" th:selected="${location.locationElement == 'earth'}">토(土)</option>
+                <option value="metal" th:selected="${location.locationElement == 'metal'}">금(金)</option>
+                <option value="water" th:selected="${location.locationElement == 'water'}">수(水)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="locationDescription">설명</label>
+            <textarea id="locationDescription" name="locationDescription" th:text="${location.locationDescription}"></textarea>
+        </div>
+
+        <div class="btn-container">
+            <button type="submit" class="btn btn-submit">수정완료</button>
+            <a th:href="@{/locationread(id=${location.locationId})}" class="btn btn-cancel">취소</a>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

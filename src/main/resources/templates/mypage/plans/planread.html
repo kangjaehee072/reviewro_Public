@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('여행 계획 상세')}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>ReviewRo - 여행 계획 상세</title>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between bg-slate-100">
+
+<!-- Nav / Header 영역 -->
+<header th:replace="~{fragments/layout :: header('contents')}"></header>
+
+<!-- Main Container -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-1">
+    <div class="flex flex-col lg:flex-row items-start gap-6">
+
+        <!-- 좌측 마이페이지 사이드바 -->
+        <aside th:replace="~{fragments/mypage-menu :: menu('plans')}"></aside>
+
+        <!-- 우측 메인 콘텐츠 영역 -->
+        <section class="flex-1 w-full space-y-6">
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
+
+                <!-- 페이지 헤더 및 뒤로가기 -->
+                <div class="pb-4 border-b border-slate-100 flex items-center justify-between">
+                    <div>
+                        <span class="px-2.5 py-1 bg-blue-50 text-blue-600 font-bold rounded-lg text-[11px]" th:text="${travelPlan.planType != null ? travelPlan.planType : '자유 여행'}">가족 여행</span>
+                        <h1 class="text-xl font-bold text-slate-900 mt-1" th:text="${travelPlan.planTitle}">제주도 3박 4일 힐링 여행</h1>
+                    </div>
+                    <a th:href="@{/mypage/travelplan}" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition-all">
+                        목록으로
+                    </a>
+                </div>
+
+                <!-- 여행 기간 및 설명 -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/60 space-y-2 text-xs">
+                    <div class="flex items-center gap-2 text-slate-600 font-medium">
+                        <i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i>
+                        <span th:text="${travelPlan.planStartDate}">2026-10-20</span>
+                        <span>~</span>
+                        <span th:text="${travelPlan.planEndDate}">2026-10-24</span>
+                    </div>
+                    <p class="text-slate-600 leading-relaxed" th:text="${travelPlan.planDescription}">여행 설명이 들어갑니다.</p>
+                </div>
+
+                <!-- 일차별 일정 섹션 -->
+                <div class="space-y-6">
+
+                    <!-- 상단 헤더 및 전체 순서 저장 / 장소 추가 버튼 -->
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-base font-bold text-slate-900">📅 일자별 상세 일정</h2>
+                            <p class="text-[11px] text-slate-400 mt-0.5">카드를 드래그하여 순서를 바꾼 뒤 상단의 [전체 순서 저장] 버튼을 눌러주세요.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <!-- 전체 순서 저장 버튼 -->
+                            <button type="button" id="saveOrderBtn"
+                                    th:data-plan-id="${travelPlan.planId}"
+                                    onclick="saveAllSchedulesOrder()"
+                                    class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl shadow-sm transition-all flex items-center gap-1.5 cursor-pointer">
+                                <i data-lucide="save" class="w-4 h-4"></i>
+                                <span>전체 순서 저장</span>
+                            </button>
+                            <!-- 장소 추가 버튼 -->
+                            <button type="button"
+                                    onclick="openGlobalAddModal()"
+                                    class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-sm transition-all flex items-center gap-1.5 cursor-pointer">
+                                <i data-lucide="plus" class="w-4 h-4"></i>
+                                <span>장소 추가</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 일차가 없을 경우 -->
+                    <div th:if="${#lists.isEmpty(travelPlan.dailyPlans)}" class="py-8 text-center text-slate-400 text-xs">
+                        등록된 일정 정보가 없습니다.
+                    </div>
+
+                    <!-- 일차별 카드 반복 -->
+                    <div th:each="daily : ${travelPlan.dailyPlans}" class="border border-slate-200 rounded-xl p-4 bg-white shadow-sm space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                            <h3 class="font-bold text-blue-600 text-sm" th:text="${daily.dailyNumber + '일차 (' + daily.dailyDate + ')'}">1일차 (2026-10-20)</h3>
+                        </div>
+
+                        <!-- 세부 일정(장소) 리스트 컨테이너 -->
+                        <div class="space-y-2 schedule-container min-h-[60px] p-1 transition-all"
+                             th:data-daily-id="${daily.dailyId}"
+                             ondragover="onDragOver(event)"
+                             ondrop="onDrop(event)">
+                            <div th:each="schedule : ${travelPlan.schedulePlans}"
+                                 th:if="${schedule.dailyId == daily.dailyId}"
+                                 th:data-schedule-id="${schedule.scheduleId}"
+                                 draggable="true"
+                                 ondragstart="onDragStart(event)"
+                                 class="flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100/70 rounded-lg border border-slate-100 text-xs schedule-item cursor-grab active:cursor-grabbing transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 font-bold flex items-center justify-center text-[11px]" th:text="${schedule.scheduleNumber}">1</span>
+                                    <div>
+                                        <p class="font-bold text-slate-900" th:text="${schedule.location != null ? schedule.location.locationName : '장소 이름'}">장소 이름</p>
+                                        <p class="text-slate-500 text-[11px]" th:text="${schedule.scheduleDescription}">방문 메모</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <div class="text-slate-500 font-medium text-[11px]">
+                                        <span th:text="${schedule.scheduleStartTime}">10:00</span> ~ <span th:text="${schedule.scheduleEndTime}">12:00</span>
+                                    </div>
+                                    <!-- 개별 일정 삭제 버튼 -->
+                                    <button type="button" th:onclick="'deleteSchedule(' + ${schedule.scheduleId} + ')'" class="text-slate-400 hover:text-red-500 transition-colors p-1 cursor-pointer" title="일정 삭제">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+</main>
+
+<!-- 일차 선택 + 북마크 장소 선택형 모달 -->
+<div id="addLocationModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-lg rounded-2xl shadow-xl border border-slate-200 p-6 space-y-4 max-h-[90vh] flex flex-col">
+
+        <!-- 모달 헤더 -->
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3 flex-shrink-0">
+            <div>
+                <h3 class="font-bold text-slate-900 text-sm">일정 장소 추가</h3>
+                <p class="text-[11px] text-slate-400 mt-0.5">일차와 북마크 장소를 선택하여 일정을 추가해 주세요.</p>
+            </div>
+            <button type="button" onclick="closeAddModal()" class="text-slate-400 hover:text-slate-600">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- 1. 일차 선택 드롭다운 -->
+        <div class="space-y-1 flex-shrink-0">
+            <label class="text-xs font-semibold text-slate-700">일차 선택</label>
+            <select id="selectDaily" class="w-full p-2.5 border border-slate-200 rounded-xl text-xs bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                <option value="">-- 일차를 선택하세요 --</option>
+                <th:block th:each="daily : ${travelPlan.dailyPlans}">
+                    <option th:value="${daily.dailyId}" th:text="${daily.dailyNumber + '일차 (' + daily.dailyDate + ')'}"></option>
+                </th:block>
+            </select>
+        </div>
+
+        <!-- 선택된 장소 세부 정보 입력 영역 -->
+        <div id="selectedLocationForm" class="hidden p-3.5 bg-blue-50/60 border border-blue-200 rounded-xl space-y-3 flex-shrink-0">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-blue-900">선택한 장소: <span id="targetLocationName" class="underline">장소명</span></span>
+                <button type="button" onclick="resetSelectedLocation()" class="text-[11px] text-slate-500 hover:text-slate-800">장소 다시 선택</button>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <input type="time" id="scheduleStartTime" aria-label="시작 시간" title="시작 시간" class="p-2 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="time" id="scheduleEndTime" aria-label="종료 시간" title="종료 시간" class="p-2 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <input type="text" id="scheduleDescription" placeholder="방문 목적이나 간단한 메모" class="w-full p-2 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button type="button" onclick="submitSchedule()" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-all shadow-sm">
+                선택한 일자에 장소 등록하기
+            </button>
+        </div>
+
+        <!-- 2. 북마크 장소 카드리스트 영역 -->
+        <div class="space-y-1 flex-shrink-0">
+            <label class="text-xs font-semibold text-slate-700">장소 선택 (내 북마크 목록)</label>
+        </div>
+        <div id="bookmarkListContainer" class="flex-1 overflow-y-auto space-y-2.5 pr-1 max-h-48">
+            <!-- JavaScript로 장소 항목 동적 생성 -->
+        </div>
+
+    </div>
+</div>
+
+<!-- Footer 영역 -->
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<script>
+    lucide.createIcons();
+
+    let selectedLocationId = null;
+    let selectedLocationName = '';
+    let draggedItem = null;
+
+    // 1. 드래그 시작
+    function onDragStart(e) {
+        draggedItem = e.target.closest('.schedule-item');
+        e.dataTransfer.effectAllowed = 'move';
+        if (draggedItem) {
+            draggedItem.classList.add('opacity-45', 'bg-blue-50');
+        }
+    }
+
+    // 2. 드래그 오버
+    function onDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    }
+
+    // 3. 드롭 (컨테이너 위에 내려놓을 때)
+    function onDrop(e) {
+        e.preventDefault();
+        if (!draggedItem) return;
+
+        const container = e.currentTarget;
+        const afterElement = getDragAfterElement(container, e.clientY);
+
+        if (afterElement == null) {
+            container.appendChild(draggedItem);
+        } else {
+            container.insertBefore(draggedItem, afterElement);
+        }
+
+        // 드래그 직후 화면 번호 뱃지 즉시 갱신
+        updateScheduleNumbers(container);
+
+        if (draggedItem) {
+            draggedItem.classList.remove('opacity-45', 'bg-blue-50');
+            draggedItem = null;
+        }
+    }
+
+    // 마우스 위치에 따라 어느 카드 사이에 넣을지 계산
+    function getDragAfterElement(container, y) {
+        const draggableElements = [...container.querySelectorAll('.schedule-item:not(.opacity-45)')];
+
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    // 4. [전체 순서 저장] 버튼 클릭 시 모든 일차의 순서를 서버로 일괄 전송
+    function saveAllSchedulesOrder() {
+        const containers = document.querySelectorAll('.schedule-container');
+        if (containers.length === 0) {
+            alert('저장할 일정이 없습니다.');
+            return;
+        }
+
+        const csrfToken = document.querySelector("meta[name='_csrf']").getAttribute("content");
+        const csrfHeader = document.querySelector("meta[name='_csrf_header']").getAttribute("content");
+
+        // 서버는 보내지 않은 일정을 지우므로 모든 일차를 한 목록으로 모아 한 번에 보낸다
+        const planId = document.getElementById('saveOrderBtn').getAttribute('data-plan-id');
+        const schedulePlansDTOList = [];
+
+        containers.forEach(container => {
+            const dailyId = Number(container.getAttribute('data-daily-id'));
+            const items = container.querySelectorAll('.schedule-item');
+
+            items.forEach((item, index) => {
+                const scheduleId = item.getAttribute('data-schedule-id');
+                schedulePlansDTOList.push({
+                    scheduleId: Number(scheduleId),
+                    scheduleNumber: index + 1,
+                    dailyId: dailyId
+                });
+            });
+        });
+
+        fetch(`/api/travels/${planId}/schedules`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            },
+            body: JSON.stringify(schedulePlansDTOList)
+        })
+            .then(res => {
+                if (!res.ok) throw new Error('일정 순서 저장 실패');
+            })
+            .then(() => {
+                alert('모든 일정 순서가 성공적으로 저장되었습니다!');
+                location.reload();
+            })
+            .catch(err => {
+                console.error('전체 순서 저장 에러:', err);
+                alert('일정 순서 저장 중 오류가 발생했습니다.');
+            });
+    }
+
+    // 5. 화면 내 번호 뱃지 동적 업데이트
+    function updateScheduleNumbers(container) {
+        const items = container.querySelectorAll('.schedule-item');
+        items.forEach((item, index) => {
+            const badge = item.querySelector('.rounded-full');
+            if (badge) {
+                badge.innerText = index + 1;
+            }
+        });
+    }
+
+    // 6. 개별 일정 삭제
+    function deleteSchedule(scheduleId) {
+        if (!confirm('정말 이 세부 일정을 삭제하시겠습니까?')) return;
+
+        const csrfToken = document.querySelector("meta[name='_csrf']").getAttribute("content");
+        const csrfHeader = document.querySelector("meta[name='_csrf_header']").getAttribute("content");
+
+        fetch(`/api/travels/schedules/${scheduleId}`, {
+            method: 'DELETE',
+            headers: {
+                [csrfHeader]: csrfToken
+            }
+        })
+            .then(res => {
+                if (res.ok) {
+                    alert('일정이 삭제되었습니다.');
+                    location.reload();
+                } else {
+                    alert('일정 삭제에 실패했습니다.');
+                }
+            })
+            .catch(err => {
+                console.error('삭제 에러:', err);
+                alert('오류가 발생했습니다.');
+            });
+    }
+
+    // 7. 상단 전체 장소 추가 모달 열기 및 북마크 로드
+    function openGlobalAddModal() {
+        document.getElementById('addLocationModal').classList.remove('hidden');
+        document.getElementById('selectDaily').value = '';
+        resetSelectedLocation();
+
+        const container = document.getElementById('bookmarkListContainer');
+        container.innerHTML = '<p class="text-center text-xs text-slate-400 py-6">북마크 목록을 불러오는 중...</p>';
+
+        fetch('/api/bookmarks')
+            .then(res => {
+                if (!res.ok) throw new Error('북마크 목록 불러오기 실패');
+                return res.json();
+            })
+            .then(data => {
+                container.innerHTML = '';
+
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<p class="text-center text-xs text-slate-400 py-6">저장된 북마크 장소가 없습니다.<br>먼저 장소를 저장해 보세요!</p>';
+                    return;
+                }
+
+                data.forEach(item => {
+                    const locId = item.locationId || item.id;
+                    const locName = item.locationName || item.placeName || '장소명 없음';
+                    const locAddr = item.address || item.roadAddress || '주소 정보 없음';
+
+                    const itemCard = document.createElement('div');
+                    itemCard.className = 'flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100/80 border border-slate-200/80 rounded-xl transition-all';
+                    // 장소명·주소는 사용자 입력이 섞일 수 있어 HTML 로 끼우지 않고 textContent 로 넣는다
+                    itemCard.innerHTML = `
+                        <div class="space-y-0.5">
+                            <h4 class="font-bold text-slate-800 text-xs"></h4>
+                            <p class="text-[11px] text-slate-400 line-clamp-1"></p>
+                        </div>
+                        <button type="button"
+                                class="px-3 py-1.5 bg-white border border-blue-200 text-blue-600 hover:bg-blue-600 hover:text-white text-xs font-semibold rounded-lg transition-all shadow-sm flex items-center gap-1 cursor-pointer flex-shrink-0">
+                            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                            <span>선택</span>
+                        </button>
+                    `;
+                    itemCard.querySelector('h4').textContent = locName;
+                    itemCard.querySelector('p').textContent = locAddr;
+                    itemCard.querySelector('button')
+                        .addEventListener('click', () => selectLocationForSchedule(locId, locName));
+                    container.appendChild(itemCard);
+                });
+
+                lucide.createIcons();
+            })
+            .catch(err => {
+                console.error(err);
+                container.innerHTML = '<p class="text-center text-xs text-red-500 py-6">북마크 장소를 불러오지 못했습니다.</p>';
+            });
+    }
+
+    function selectLocationForSchedule(locationId, locationName) {
+        selectedLocationId = locationId;
+        selectedLocationName = locationName;
+        document.getElementById('targetLocationName').innerText = locationName;
+        document.getElementById('selectedLocationForm').classList.remove('hidden');
+    }
+
+    function resetSelectedLocation() {
+        selectedLocationId = null;
+        selectedLocationName = '';
+        document.getElementById('selectedLocationForm').classList.add('hidden');
+        document.getElementById('scheduleStartTime').value = '';
+        document.getElementById('scheduleEndTime').value = '';
+        document.getElementById('scheduleDescription').value = '';
+    }
+
+    function closeAddModal() {
+        document.getElementById('addLocationModal').classList.add('hidden');
+        resetSelectedLocation();
+    }
+
+    function submitSchedule() {
+        const dailySelect = document.getElementById('selectDaily');
+        const dailyId = dailySelect.value;
+
+        if (!dailyId) {
+            alert('일정을 추가할 일차를 선택해 주세요.');
+            dailySelect.focus();
+            return;
+        }
+
+        if (!selectedLocationId) {
+            alert('추가할 장소를 선택해 주세요.');
+            return;
+        }
+
+        const startTime = document.getElementById('scheduleStartTime').value;
+        const endTime = document.getElementById('scheduleEndTime').value;
+        const description = document.getElementById('scheduleDescription').value;
+
+        const payload = {
+            location: {
+                locationId: selectedLocationId
+            },
+            scheduleStartTime: startTime,
+            scheduleEndTime: endTime,
+            scheduleDescription: description
+        };
+
+        const csrfToken = document.querySelector("meta[name='_csrf']").getAttribute("content");
+        const csrfHeader = document.querySelector("meta[name='_csrf_header']").getAttribute("content");
+
+        fetch(`/api/travels/dailies/${dailyId}/schedules`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            },
+            body: JSON.stringify(payload)
+        })
+            .then(res => {
+                if (res.ok) {
+                    alert('일정에 성공적으로 추가되었습니다!');
+                    location.reload();
+                } else {
+                    alert('일정 추가에 실패했습니다.');
+                }
+            })
+            .catch(err => {
+                console.error('에러 발생:', err);
+                alert('오류가 발생했습니다.');
+            });
+    }
+</script>
+</body>
+</html>

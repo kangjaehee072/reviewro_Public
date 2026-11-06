@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('내 여행 그룹')}"></head>
+<link rel="stylesheet" th:href="@{/css/board.css}">
+<body>
+<header th:replace="~{fragments/layout :: header('community')}"></header>
+
+<main class="main board board-group">
+    <div class="wrap">
+
+        <section class="board-hero">
+            <div class="board-hero-icon"><i data-lucide="users-round" class="ico ico-lg"></i></div>
+            <div class="board-hero-text">
+                <span class="board-eyebrow">여행 그룹</span>
+                <h1>같이 떠나는 사람들끼리</h1>
+                <p>그룹을 만들고 친구를 닉네임으로 초대해서 여행계획을 공유하고 채팅해요</p>
+            </div>
+        </section>
+
+        <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+        <div th:if="${successMessage}" class="notice notice-ok" th:text="${successMessage}"></div>
+
+        <!-- 받은 초대 -->
+        <div class="card group-block" th:unless="${#lists.isEmpty(invitations)}">
+            <div class="group-section-head">
+                <span>받은 초대 <small th:text="${#lists.size(invitations)} + '건'">1건</small></span>
+            </div>
+            <div class="group-invite" th:each="inv : ${invitations}">
+                <div class="text">
+                    <strong th:text="${inv.groupName}">그룹 이름</strong>
+                    <div class="hint" th:text="${(inv.invitedByNickname ?: inv.ownerNickname) + ' 님이 초대했어요 · 구성원 ' + inv.memberCount + '명'}">
+                        닉네임 님이 초대했어요</div>
+                </div>
+                <form th:action="@{/groups/{id}/accept(id=${inv.groupId})}" method="post">
+                    <button type="submit" class="btn btn-sm btn-board">수락</button>
+                </form>
+                <form th:action="@{/groups/{id}/decline(id=${inv.groupId})}" method="post">
+                    <button type="submit" class="btn btn-sm btn-line">거절</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 그룹 만들기 / 초대코드로 참여 (초대 링크로 오면 ?code= 가 채워져 있다) -->
+        <div class="group-start group-block">
+            <form class="card group-inline-form" th:action="@{/groups}" method="post">
+                <input type="text" name="groupName" maxlength="50" required placeholder="새 그룹 이름 (예: 제주 3박4일 동기여행)">
+                <button type="submit" class="btn btn-board"><i data-lucide="plus" class="ico"></i>그룹 만들기</button>
+            </form>
+            <form class="card group-inline-form" th:action="@{/groups/join}" method="post"
+                  th:classappend="${param.code != null} ? 'highlight'">
+                <input type="text" name="code" maxlength="12" required placeholder="초대코드 8자리"
+                       th:value="${param.code}" style="text-transform: uppercase">
+                <button type="submit" class="btn btn-board"><i data-lucide="log-in" class="ico"></i>코드로 참여</button>
+            </form>
+        </div>
+
+        <div class="board-toolbar">
+            <span class="board-count">내 그룹 <b th:text="${#lists.size(groups)}">0</b>개</span>
+        </div>
+
+        <div th:if="${#lists.isEmpty(groups)}" class="card board-empty">
+            <div class="board-empty-icon"><i data-lucide="users-round" class="ico ico-lg"></i></div>
+            <p>아직 들어간 그룹이 없어요. 그룹을 만들거나 초대를 기다려 보세요!</p>
+        </div>
+
+        <div class="group-cards" th:unless="${#lists.isEmpty(groups)}">
+            <a th:each="g : ${groups}" class="group-card" th:href="@{/groups/{id}(id=${g.groupId})}">
+                <strong th:text="${g.groupName}">그룹 이름</strong>
+                <span th:text="${'구성원 ' + g.memberCount + '명 · 만든 사람 ' + g.ownerNickname}">구성원 3명 · 만든 사람 닉네임</span>
+            </a>
+        </div>
+
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/board :: icons}"></th:block>
+</body>
+</html>

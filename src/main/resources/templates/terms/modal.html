@@ -1,0 +1,17 @@
+<!-- 푸터 '약관보기' 모달 본문. 레이아웃 없이 조각만 내려준다 (js/terms-modal.js) -->
+<div xmlns:th="http://www.thymeleaf.org" th:remove="tag">
+    <div class="terms-modal-head">
+        <strong>이용약관·개인정보 처리방침</strong>
+        <button type="button" class="terms-modal-close" data-terms-close aria-label="닫기">✕</button>
+    </div>
+    <div class="terms-modal-body">
+        <section th:each="s : ${sections}" class="terms-modal-section">
+            <h3 th:text="${s.title}">이용약관</h3>
+            <p class="terms-text" th:text="${s.content}">내용</p>
+        </section>
+        <div th:replace="~{fragments/terms :: officer(${siteInfo})}"></div>
+    </div>
+    <div class="terms-modal-foot">
+        <a th:href="@{/terms}" class="btn btn-line btn-full">전체 페이지로 보기</a>
+    </div>
+</div>

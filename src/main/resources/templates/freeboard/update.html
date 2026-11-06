@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('자유게시판 수정')}"></head>
+<link rel="stylesheet" th:href="@{/css/board.css}">
+<body>
+<header th:replace="~{fragments/layout :: header('community')}"></header>
+
+<main class="main board board-free">
+    <div class="wrap">
+        <div class="board-form">
+
+            <a th:href="@{/freeboard/read/{id}(id=${freeBoardDto.freeBoardId})}" class="back-link">
+                <i data-lucide="chevron-left" class="ico"></i>글로 돌아가기
+            </a>
+            <div class="board-form-head">
+                <h1>글 수정</h1>
+            </div>
+
+            <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+
+            <form class="card" th:action="@{/freeboard/update}" th:object="${freeBoardDto}" method="post">
+                <input type="hidden" th:field="*{freeBoardId}">
+
+                <section class="form-section">
+                    <div class="field">
+                        <label for="freeBoardTitle">제목<span class="req">*</span></label>
+                        <input type="text" id="freeBoardTitle" th:field="*{freeBoardTitle}" required>
+                    </div>
+
+                    <div class="field">
+                        <label for="freeBoardContent">내용<span class="req">*</span></label>
+                        <textarea id="freeBoardContent" th:field="*{freeBoardContent}" rows="12" required></textarea>
+                    </div>
+                </section>
+
+                <div class="board-form-foot">
+                    <a th:href="@{/freeboard/read/{id}(id=*{freeBoardId})}" class="btn btn-line">취소</a>
+                    <button type="submit" class="btn btn-board"><i data-lucide="check" class="ico"></i>수정 완료</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/board :: icons}"></th:block>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('장소 관리')}"></head>
+<body>
+<!-- 1. Nav / Header 영역 -->
+<header th:replace="~{fragments/layout :: header('contents')}"></header>
+
+<!-- Main Container (사이드바 & 메인 영역 분리) -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-1">
+    <div class="flex flex-col lg:flex-row items-start gap-6">
+
+        <!-- ==================== [좌측 사이드바] (장소 관리 메뉴 활성화) ==================== -->
+        <aside th:replace="~{fragments/admin-menu :: menu('location')}"></aside>
+
+        <!-- ==================== [우측 메인 콘텐츠 영역] ==================== -->
+        <section class="flex-1 w-full space-y-6">
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
+                <!-- 페이지 타이틀 및 검색 바 영역 -->
+                <div class="page-head flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100">
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-900">장소 관리</h1>
+                        <p class="text-xs text-slate-500 mt-0.5">지도에서 위치를 확인하고 새 항목을 등록하세요.</p>
+                    </div>
+                    <form class="searchbar flex items-center gap-2" role="search" onsubmit="return false">
+                        <input type="search" placeholder="검색어 입력"
+                               class="px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-emerald-500">
+                        <button type="submit"
+                                class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-xl transition-all">검색</button>
+                    </form>
+                </div>
+
+                <!-- 기존 장소 관리 동적 루트 영역 -->
+                <div id="admin-root" class="list-layout min-h-[500px]"></div>
+            </div>
+
+        </section>
+
+    </div>
+</main>
+
+<!-- Footer 영역 -->
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<!-- Kakao Maps SDK 및 장소 관리 스크립트 (기존 유지) -->
+<script th:src="|//dapi.kakao.com/v2/maps/sdk.js?appkey=${key.kakaoJavaScript}&autoload=false|"></script>
+<script type="module" th:src="@{/js/dist/adminlocation.js}"></script>
+
+<!-- Script Initialization -->
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>

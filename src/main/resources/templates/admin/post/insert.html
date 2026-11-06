@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('공지·추천 작성')}"></head>
+<link rel="stylesheet" th:href="@{/css/board.css}">
+<body>
+<header th:replace="~{fragments/layout :: header('community')}"></header>
+
+<main class="main board board-notice">
+    <div class="wrap"
+         th:with="isAdminView=${loginMember != null and loginMember.memberRole.name() != 'USER'}">
+    <div th:class="${isAdminView} ? 'flex flex-col lg:flex-row items-start gap-6' : ''">
+        <!-- 관리자만 좌측 관리자 메뉴 -->
+        <th:block th:if="${isAdminView}">
+            <aside th:replace="~{fragments/admin-menu :: menu('notices')}"></aside>
+        </th:block>
+    <div class="flex-1 min-w-0 w-full">
+        <div class="board-form">
+
+            <a th:href="@{/admin/post/list}" class="back-link"><i data-lucide="chevron-left" class="ico"></i>공지·추천</a>
+            <div class="board-form-head">
+                <h1>공지 · 추천글 작성</h1>
+                <p>운영 소식이나 이달의 추천 여행지를 올려 주세요</p>
+            </div>
+
+            <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+
+            <form class="card" th:action="@{/admin/post/insert}" th:object="${adminPostDTO}" method="post"
+                  enctype="multipart/form-data">
+
+                <section class="form-section">
+
+                    <div class="field">
+                        <label for="adminPostTitle">제목<span class="req">*</span></label>
+                        <input type="text" id="adminPostTitle" th:field="*{adminPostTitle}"
+                               placeholder="제목을 입력하세요" required>
+                    </div>
+
+                    <label class="toggle-row" for="isPinnedCheck">
+                        <input type="checkbox" id="isPinnedCheck" th:field="*{adminPostPinned}">
+                        <span><b>목록 맨 위에 고정</b><small>중요한 공지나 추천글을 항상 위에 보여줘요</small></span>
+                    </label>
+
+                    <div class="field">
+                        <label for="adminPostContent">내용<span class="req">*</span></label>
+                        <textarea id="adminPostContent" th:field="*{adminPostContent}" rows="12"
+                                  placeholder="내용을 입력하세요" required></textarea>
+                    </div>
+
+                    <div class="field">
+                        <label for="images">사진</label>
+                        <div class="upload-box">
+                            <i data-lucide="image-plus" class="ico"></i>
+                            <div>
+                                <input type="file" id="images" name="images" accept="image/*" multiple>
+                                <small>여러 장 올릴 수 있어요. 첫 장이 목록 썸네일이 됩니다.</small>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="board-form-foot">
+                    <a th:href="@{/admin/post/list}" class="btn btn-line">취소</a>
+                    <button type="submit" class="btn btn-board"><i data-lucide="check" class="ico"></i>등록하기</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+    </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/board :: icons}"></th:block>
+</body>
+</html>

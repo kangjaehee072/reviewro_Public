@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>장소 등록</title>
+    <!-- Spring Security CSRF 토큰 설정 -->
+    <meta name="_csrf" th:content="${_csrf?.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf?.headerName}"/>
+</head>
+<body>
+
+<div class="card list-form-module">
+    <div class="card-head">새 항목 등록</div>
+    <div class="card-body">
+        <form id="asyncInsertForm">
+            <div class="field">
+                <label for="locationName">장소 이름<span class="req">*</span></label>
+                <input type="text" id="locationName" name="locationName" required placeholder="장소 이름을 입력하세요">
+            </div>
+            <div class="field">
+                <label for="locationAddress">도로명주소<span class="req">*</span></label>
+                <input type="text" id="locationAddress" name="locationAddress" required placeholder="도로명주소를 입력하세요">
+            </div>
+            <div class="field">
+                <label for="locationAddressTw">구주소</label>
+                <input type="text" id="locationAddressTw" name="locationAddressTw" placeholder="구주소를 입력하세요">
+            </div>
+            <div class="field">
+                <label for="locationNumber">전화번호<span class="req">*</span></label>
+                <input type="tel" id="locationNumber" name="locationNumber" placeholder="전화번호를 입력하세요" required>
+            </div>
+            <div class="field">
+                <label for="locationCategory">카테고리<span class="req">*</span></label>
+                <select id="locationCategory" name="locationCategory" required>
+                    <option value="" disabled selected>카테고리를 선택해주세요</option>
+                    <option value="음식점">음식점</option>
+                    <option value="카페/디저트">카페/디저트</option>
+                    <option value="자연/관광명소">자연/관광명소</option>
+                    <option value="숙박">숙박</option>
+                    <option value="문화/예술">문화/예술</option>
+                    <option value="액티비티/체험">액티비티/체험</option>
+                    <option value="축제/행사">축제/행사</option>
+                    <option value="쇼핑">쇼핑</option>
+                    <option value="교통/편의">교통/편의</option>
+                </select>
+            </div>
+            <div class="field">
+                <span>운영일 <span class="req">*</span> </span>
+                <label><input type="checkbox" name="locationDayofweek" value="mon"> 월</label>
+                <label><input type="checkbox" name="locationDayofweek" value="tue"> 화</label>
+                <label><input type="checkbox" name="locationDayofweek" value="wed"> 수</label>
+                <label><input type="checkbox" name="locationDayofweek" value="thu"> 목</label>
+                <label><input type="checkbox" name="locationDayofweek" value="fri"> 금</label>
+                <label><input type="checkbox" name="locationDayofweek" value="sat"> 토</label>
+                <label><input type="checkbox" name="locationDayofweek" value="sun"> 일</label>
+                <label><input type="checkbox" name="locationDayofweek" value="every"> 연중무휴</label>
+            </div>
+            <div class="field">
+                <span>휴무일 <span class="req">*</span> </span>
+                <label><input type="checkbox" name="locationDayoff" value="mon"> 월</label>
+                <label><input type="checkbox" name="locationDayoff" value="tue"> 화</label>
+                <label><input type="checkbox" name="locationDayoff" value="wed"> 수</label>
+                <label><input type="checkbox" name="locationDayoff" value="thu"> 목</label>
+                <label><input type="checkbox" name="locationDayoff" value="fri"> 금</label>
+                <label><input type="checkbox" name="locationDayoff" value="sat"> 토</label>
+                <label><input type="checkbox" name="locationDayoff" value="sun"> 일</label>
+                <label><input type="checkbox" name="locationDayoff" value="holiday"> 공휴일</label>
+            </div>
+            <div class="field">
+                <label>운영시간<span class="req">*</span></label>
+                <input type="time" id="locationOpentime" name="locationOpentime" required > ~
+                <input type="time" id="locationClosetime" name="locationClosetime" required >
+            </div>
+            <div class="field">
+                <label for="locationURL">홈페이지 URL</label>
+                <input type="url" id="locationURL" name="locationURL" placeholder="URL을 입력하세요">
+            </div>
+            <div class="field">
+                <label for="locationElement">사주풀이용 오행속성</label>
+                <select id="locationElement" name="locationElement">
+                    <option value="" disabled selected>장소에 맞는 오행을 선택해주세요</option>
+                    <option value="wood">목(木)</option>
+                    <option value="fire">화(火)</option>
+                    <option value="earth">토(土)</option>
+                    <option value="metal">금(金)</option>
+                    <option value="water">수(水)</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="locationDescription">설명<span class="opt">(선택)</span></label>
+                <textarea id="locationDescription" name="locationDescription" placeholder="내용 입력"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full" id="submitBtn">저장</button>
+        </form>
+
+        <div id="resultMessage" class="notice"></div>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('asyncInsertForm');
+    const btn = document.getElementById('submitBtn');
+    const resultDiv = document.getElementById('resultMessage');
+
+    function showResult(type, text) {
+        resultDiv.className = 'notice notice-' + type;
+        resultDiv.textContent = text;
+    }
+
+    // 체크박스 다중 선택 항목을 쉼표(,) 구분 문자열로 결합하는 함수
+    function getCheckedValues(name) {
+        const checkedBoxes = document.querySelectorAll(`input[name="${name}"]:checked`);
+        return Array.from(checkedBoxes).map(cb => cb.value).join(',');
+    }
+
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        // LocationDTO 구조에 맞춘 객체 생성
+        const formData = {
+            locationName: document.getElementById('locationName').value.trim(),
+            locationAddress: document.getElementById('locationAddress').value.trim(),
+            locationAddressTw: document.getElementById('locationAddressTw').value.trim(),
+            locationNumber: document.getElementById('locationNumber').value.trim(),
+            locationCategory: document.getElementById('locationCategory').value,
+            locationDayofweek: getCheckedValues('locationDayofweek'),
+            locationDayoff: getCheckedValues('locationDayoff'),
+            locationOpentime: document.getElementById('locationOpentime').value,
+            locationClosetime: document.getElementById('locationClosetime').value,
+            locationURL: document.getElementById('locationURL').value.trim(),
+            locationElement: document.getElementById('locationElement').value || '',
+            locationDescription: document.getElementById('locationDescription').value.trim()
+        };
+
+        btn.disabled = true;
+        btn.textContent = '저장 중...';
+        showResult('wait', '전송 중...');
+
+        // Spring Security CSRF 헤더 처리
+        const csrfTokenMeta = document.querySelector("meta[name='_csrf']");
+        const csrfHeaderMeta = document.querySelector("meta[name='_csrf_header']");
+
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+
+        if (csrfTokenMeta && csrfHeaderMeta) {
+            headers[csrfHeaderMeta.getAttribute('content')] = csrfTokenMeta.getAttribute('content');
+        }
+
+        try {
+            // 백엔드 Controller의 @PostMapping("/api/locations") 호출
+            const response = await fetch('/api/locations', {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(formData)
+            });
+
+            if (!response.ok) {
+                const errMessage = await response.text();
+                throw new Error(errMessage || '서버 응답 오류');
+            }
+
+            const locationId = await response.json();
+            showResult('ok', `장소가 성공적으로 등록되었습니다. (등록 ID: ${locationId})`);
+            form.reset();
+
+            // 등록 성공 후 1.5초 뒤 목록 페이지로 이동 원할 시 주석 해제
+            // setTimeout(() => { window.location.href = '/locationlist'; }, 1500);
+
+        } catch (error) {
+            console.error('Fetch Error:', error);
+            showResult('error', '전송에 실패했습니다. (로그인 상태 및 입력값을 확인하세요)');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '저장';
+        }
+    });
+</script>
+
+</body>
+</html>

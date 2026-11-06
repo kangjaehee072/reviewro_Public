@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('AI 설정')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('관리자메뉴')}"></header>
+
+<main class="main">
+    <div class="wrap admin-layout">
+
+        <aside th:replace="~{fragments/admin-menu :: menu('ai')}"></aside>
+
+        <div class="flex-1 min-w-0 space-y-5">
+            <div>
+                <h1 class="text-xl font-bold text-slate-900">AI 설정</h1>
+                <p class="text-xs text-slate-500 mt-0.5">파트라슈·네로·사주 추천이 어느 모델로 답할지 골라요. 저장하면 다음 질문부터 바로 바뀌어요.</p>
+            </div>
+
+            <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+            <div th:if="${successMessage}" class="notice notice-ok" th:text="${successMessage}"></div>
+            <div th:if="${testResult}" class="notice notice-ok">
+                <b th:text="${testProvider.name() == 'CLAUDE'} ? '연결 테스트 (Claude ' + ${testModel} + ')' : '연결 테스트 (Ollama)'">연결 테스트</b>
+                <div th:text="${testResult}">응답 1.2초 · 안녕하세요</div>
+            </div>
+
+            <form th:action="@{/admin/ai}" method="post"
+                  class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label class="block cursor-pointer">
+                        <input type="radio" name="provider" value="OLLAMA" class="peer sr-only"
+                               th:checked="${setting.provider.name() == 'OLLAMA'}">
+                        <div class="h-full rounded-xl border-2 border-slate-200 p-5 peer-checked:border-blue-600 peer-checked:bg-blue-50/50 transition-colors">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="server" class="w-5 h-5 text-slate-600"></i>
+                                <b class="text-slate-900">Ollama</b>
+                                <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">무료</span>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-2">자체 서버 모델. 비용은 없지만 답이 느리고 품질이 들쭉날쭉할 수 있어요.</p>
+                            <p class="text-[11px] text-slate-400 mt-2" th:text="'모델: ' + (${ollamaModel} ?: '(설정 없음)')">모델: gemma</p>
+                        </div>
+                    </label>
+
+                    <label class="block" th:classappend="${hasClaudeKey} ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'">
+                        <input type="radio" name="provider" value="CLAUDE" class="peer sr-only"
+                               th:checked="${setting.provider.name() == 'CLAUDE'}" th:disabled="${!hasClaudeKey}">
+                        <div class="h-full rounded-xl border-2 border-slate-200 p-5 peer-checked:border-blue-600 peer-checked:bg-blue-50/50 transition-colors">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="sparkles" class="w-5 h-5 text-slate-600"></i>
+                                <b class="text-slate-900">Claude API</b>
+                                <span class="text-[11px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">유료</span>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-2">Anthropic 의 Claude. 답이 빠르고 정확하지만 질문마다 요금이 나가요.</p>
+                            <p class="text-[11px] mt-2 font-semibold"
+                               th:classappend="${hasClaudeKey} ? 'text-emerald-600' : 'text-rose-600'"
+                               th:text="${hasClaudeKey} ? 'API 키 설정됨' : 'API 키 없음 · .env 에 ANTHROPIC_API_KEY 를 넣고 서버를 다시 켜 주세요'">API 키 설정됨</p>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="field">
+                    <label for="claudeModel" class="text-xs font-semibold text-slate-600">Claude 모델</label>
+                    <select id="claudeModel" name="claudeModel"
+                            class="mt-1 w-full md:w-80 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                        <option th:each="m : ${claudeModels}" th:value="${m}" th:text="${m}"
+                                th:selected="${m == setting.claudeModel}">claude-opus-5-5</option>
+                    </select>
+                    <p class="text-[11px] text-slate-400 mt-1">opus 가 가장 정확하고, haiku 가 가장 싸고 빨라요. Claude 를 고를 때만 쓰여요.</p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2 pt-4 border-t border-slate-100">
+                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl">저장</button>
+                    <button type="submit" th:formaction="@{/admin/ai/test}"
+                            class="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 text-sm font-semibold rounded-xl border border-slate-200">연결 테스트</button>
+                    <span class="text-[11px] text-slate-400">연결 테스트는 저장하지 않고 고른 쪽에 짧은 질문을 한 번 보내 봐요.</span>
+                    <span class="text-[11px] text-slate-400 ml-auto" th:if="${setting.updatedBy}"
+                          th:text="'마지막 변경: ' + ${setting.updatedBy}">마지막 변경: admin</span>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script>window.lucide && lucide.createIcons();</script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security6" lang="ko">
+<head th:replace="~{fragments/layout :: head('밸런스 게임')}">
+</head>
+<link rel="stylesheet" th:href="@{/css/board.css}">
+<body>
+<header th:replace="~{fragments/layout :: header('contents')}"></header>
+
+<main class="main">
+    <div class="wrap">
+
+
+        <div class="form-page">
+            <div class="page-head center">
+                <div>
+                    <h1 th:text="${balanceGameDto.balanceGameTitle}">게임 질문</h1>
+                    <p>로그인 없이 가볍게 참여하고 실시간 결과를 확인해보세요</p>
+                </div>
+            </div>
+
+            <div th:if="${message}" class="toast" th:text="${message}"></div>
+            <div th:if="${errorMessage}" class="toast toast-error" th:text="${errorMessage}"></div>
+
+            <div class="card">
+                <div class="card-body"
+                     th:with="cntA=${balanceGameDto.balanceGameCountA},
+                              cntB=${balanceGameDto.balanceGameCountB},
+                              total=${cntA + cntB}">
+
+                    <div th:with="perA=${total == 0 ? 50 : (cntA * 100 / total)},
+                                  perB=${total == 0 ? 50 : (100 - (cntA * 100 / total))}">
+
+                        <div class="progress balance-progress">
+                            <div class="progress-bar" th:style="'width:' + ${perA} + '%'" th:text="${perA} + '%'">A</div>
+                            <div class="progress-bar alt" th:style="'width:' + ${perB} + '%'" th:text="${perB} + '%'">B</div>
+                        </div>
+
+                        <form th:action="@{/balance/vote}" method="post">
+                            <input type="hidden" name="balanceGameId" th:value="${balanceGameDto.balanceGameId}">
+
+                            <div class="option-grid">
+                                <button type="submit" name="selectedOption" value="A" class="option-btn">
+                                    <strong>A. <span th:text="${balanceGameDto.balanceGameOptionA}">옵션 A</span></strong>
+                                    <span th:text="${cntA} + '표 (' + ${perA} + '%)'">0표</span>
+                                </button>
+
+                                <button type="submit" name="selectedOption" value="B" class="option-btn alt">
+                                    <strong>B. <span th:text="${balanceGameDto.balanceGameOptionB}">옵션 B</span></strong>
+                                    <span th:text="${cntB} + '표 (' + ${perB} + '%)'">0표</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="owner-actions"
+                 th:if="${loginMemberId != null and loginMemberId == balanceGameDto.balanceGameMemberId}">
+                <a th:href="@{/balance/update/{id}(id=${balanceGameDto.balanceGameId})}" class="btn btn-line">
+                    <i data-lucide="pencil" class="ico"></i>수정
+                </a>
+                <form th:action="@{/balance/delete}" method="post" class="inline-form"
+                      onsubmit="return confirm('이 게임을 삭제할까요? 삭제하면 되돌릴 수 없어요.');">
+                    <input type="hidden" name="balanceGameId" th:value="${balanceGameDto.balanceGameId}">
+                    <button type="submit" class="btn btn-danger-ghost">
+                        <i data-lucide="trash-2" class="ico"></i>삭제
+                    </button>
+                </form>
+            </div>
+
+            <div class="form-actions center">
+                <a th:href="@{/balance/list}" class="btn btn-line btn-full">🔄 다른 밸런스 게임 보러가기</a>
+            </div>
+
+            <div class="section">
+                <div data-widget="reactions" data-type="BALANCE_GAME"
+                     th:attr="data-id=${balanceGameDto.balanceGameId}" class="board-widget"></div>
+                <div data-widget="comments" data-type="BALANCE_GAME"
+                     th:attr="data-id=${balanceGameDto.balanceGameId}"></div>
+            </div>
+
+        </div>
+        <script type="module" th:src="@{/js/dist/board.js}"></script>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script>
+    document.querySelectorAll('.toast').forEach(function (t) {
+        setTimeout(function () {
+            t.classList.add('toast-out');
+            setTimeout(function () { t.remove(); }, 300);
+        }, 2500);
+    });
+</script>
+</body>
+</html>

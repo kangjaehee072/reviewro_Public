@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('AI 추천')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('ai')}"></header>
+
+<main class="main">
+    <div class="wrap">
+        <div id="ai-root"></div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<script th:src="|//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoKey}&autoload=false|"></script>
+<script type="module" th:src="@{/js/dist/ai.js}"></script>
+</body>
+</html>

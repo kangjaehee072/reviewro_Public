@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('여행 리뷰')}"></head>
+<link rel="stylesheet" th:href="@{/css/board.css}">
+<body>
+<header th:replace="~{fragments/layout :: header('community')}"></header>
+
+<main class="main board board-review">
+    <div class="wrap">
+
+        <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+        <div th:if="${successMessage}" class="notice notice-ok" th:text="${successMessage}"></div>
+
+        <article class="card post" th:with="writer=${reviewDto.reviewUser}">
+            <header class="post-head">
+                <div class="post-badges">
+                    <span class="badge badge-board" th:text="${reviewDto.reviewCategory ?: '리뷰'}">국내여행</span>
+                </div>
+                <h1 class="post-title" th:text="${reviewDto.reviewTitle}">리뷰 제목</h1>
+
+                <div class="post-rating" data-widget="rating"
+                     th:attr="data-value=${reviewDto.reviewStarRating ?: 0}"></div>
+
+                <div class="post-meta">
+                    <span>
+                        <span class="post-avatar"
+                              th:text="${#strings.isEmpty(writer)} ? '?' : ${#strings.substring(writer, 0, 1)}">김</span>
+                        <span class="post-author" th:text="${writer}">작성자</span>
+                    </span>
+                    <span><i data-lucide="calendar" class="ico"></i><span th:text="${reviewDto.reviewDate}">2026-10-23</span></span>
+                </div>
+            </header>
+
+            <div class="post-body">
+                <div class="post-gallery" th:if="${images != null and !images.isEmpty()}"
+                     th:classappend="${images.size() == 1} ? 'single'">
+                    <img th:each="src : ${images}" th:src="${src}" alt="리뷰 사진">
+                </div>
+
+                <dl class="post-facts">
+                    <div class="post-fact">
+                        <i data-lucide="map-pin" class="ico"></i>
+                        <div><dt>지역 · 장소</dt>
+                            <dd th:text="${(reviewDto.reviewArea ?: '-') + ' ' + (reviewDto.reviewLocation ?: '')}">부산 해운대</dd></div>
+                    </div>
+                    <div class="post-fact" th:if="${reviewDto.reviewStartDate != null}">
+                        <i data-lucide="calendar-range" class="ico"></i>
+                        <div><dt>여행 기간</dt>
+                            <dd th:text="${reviewDto.reviewStartDate} + (${reviewDto.reviewEndDate != null} ? ' ~ ' + ${reviewDto.reviewEndDate} : '')">10.20 ~ 10.22</dd></div>
+                    </div>
+                    <div class="post-fact" th:if="${reviewDto.reviewPeopleCount != null}">
+                        <i data-lucide="users" class="ico"></i>
+                        <div><dt>인원</dt><dd th:text="${reviewDto.reviewPeopleCount} + '명'">2명</dd></div>
+                    </div>
+                    <div class="post-fact" th:if="${!#strings.isEmpty(reviewDto.reviewVisitPurpose)}">
+                        <i data-lucide="compass" class="ico"></i>
+                        <div><dt>방문 목적</dt><dd th:text="${reviewDto.reviewVisitPurpose}">힐링</dd></div>
+                    </div>
+                    <div class="post-fact" th:if="${!#strings.isEmpty(reviewDto.reviewCompanionType)}">
+                        <i data-lucide="heart-handshake" class="ico"></i>
+                        <div><dt>동행</dt><dd th:text="${reviewDto.reviewCompanionType}">친구</dd></div>
+                    </div>
+                </dl>
+
+                <div class="post-content" th:text="${reviewDto.reviewContent}">상세 내용</div>
+
+            </div>
+
+            <div class="post-reactions" data-widget="reactions" data-type="REVIEW"
+                 th:attr="data-id=${reviewDto.reviewId}"></div>
+
+            <footer class="post-foot">
+                <a th:href="@{/review/list}" class="btn btn-line">
+                    <i data-lucide="list" class="ico"></i>목록
+                </a>
+
+                <!-- 본인 글에만 수정/삭제 -->
+                <div class="owner-actions"
+                     th:if="${loginMemberId != null and loginMemberId == reviewDto.reviewMemberId}">
+                    <a th:href="@{/review/update/{id}(id=${reviewDto.reviewId})}" class="btn btn-line">
+                        <i data-lucide="pencil" class="ico"></i>수정
+                    </a>
+                    <form th:action="@{/review/delete}" method="post" class="inline-form"
+                          onsubmit="return confirm('이 리뷰를 삭제할까요? 삭제하면 되돌릴 수 없어요.');">
+                        <input type="hidden" name="reviewId" th:value="${reviewDto.reviewId}">
+                        <button type="submit" class="btn btn-danger-ghost">
+                            <i data-lucide="trash-2" class="ico"></i>삭제
+                        </button>
+                    </form>
+                </div>
+            </footer>
+        </article>
+
+        <section class="card post-comments">
+            <div data-widget="comments" data-type="REVIEW" th:attr="data-id=${reviewDto.reviewId}"></div>
+        </section>
+
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script type="module" th:src="@{/js/dist/board.js}"></script>
+<th:block th:replace="~{fragments/board :: icons}"></th:block>
+</body>
+</html>

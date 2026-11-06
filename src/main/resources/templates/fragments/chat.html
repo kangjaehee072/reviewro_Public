@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<!-- 지역 톡방·그룹 채팅 공용 조각. 동작은 /js/sse-chat.js, 모양은 style.css .chat-* + chat.css -->
+
+<!-- 지난 대화 + 입력줄. model 에 messageList, myId 가 있어야 한다 -->
+<th:block th:fragment="log">
+    <div class="chat-log" id="chatLog">
+        <p th:if="${#lists.isEmpty(messageList)}" class="hint center" id="chatEmpty">
+            아직 대화가 없어요. 첫 마디를 건네 보세요!
+        </p>
+
+        <div th:each="msg : ${messageList}" class="chat-item"
+             th:classappend="${msg.memberId == myId} ? 'mine'">
+            <div class="chat-meta">
+                <strong th:text="${msg.chatRoomMember}">닉네임</strong>
+                <time th:text="${#temporals.format(msg.chatRoomSentAt, 'MM-dd HH:mm')}">시간</time>
+            </div>
+            <div class="chat-msg chat-msg-other" th:text="${msg.chatRoomContent}">메시지</div>
+        </div>
+    </div>
+
+    <form id="chatForm" class="chat-form">
+        <input type="text" id="chatInput" maxlength="500" autocomplete="off"
+               placeholder="메시지를 입력하세요" required>
+        <button type="submit" class="btn btn-board">
+            <i data-lucide="send" class="ico"></i>전송
+        </button>
+    </form>
+</th:block>
+
+<!-- 페이지 맨 끝에 둔다. base 는 /stream, /messages 앞부분 주소 -->
+<th:block th:fragment="script(base)">
+    <script th:src="@{/js/sse-chat.js}"></script>
+    <script th:inline="javascript">
+        const sseChat = initSseChat(/*[[${base}]]*/ '', /*[[${myId}]]*/ 0, /*[[@{/chat/streams/}]]*/ '/chat/streams/');
+    </script>
+</th:block>
+
+</html>

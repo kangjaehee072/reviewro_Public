@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('해시태그 목록')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('contents')}"></header>
+
+<main class="main">
+    <div class="wrap">
+
+        <div class="page-head">
+            <div>
+                <h1>해시태그 목록</h1>
+                <p>장소에 붙는 해시태그를 관리해요</p>
+            </div>
+            <a th:href="@{/hashtaginsert}" class="btn btn-primary">새 해시태그 등록</a>
+        </div>
+
+        <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+        <div th:if="${successMessage}" class="notice notice-ok" th:text="${successMessage}"></div>
+
+        <div class="card">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th class="num">번호</th>
+                    <th>해시태그 이름</th>
+                    <th class="center">카테고리</th>
+                    <th class="center">사용 횟수</th>
+                    <th class="center">등록일</th>
+                    <th class="center">관리</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="hashtag : ${hashtags}">
+                    <td class="num" th:text="${hashtag.hashTagId}">1</td>
+                    <td>
+                        <span class="chip" th:text="${hashtag.hashTagName}">#맛집</span>
+                    </td>
+                    <td class="center" th:text="${hashtag.hashTagCategory}">음식</td>
+                    <td class="center" th:text="${hashtag.hashTagUseCnt != null ? hashtag.hashTagUseCnt : 0}">0</td>
+                    <td class="center nowrap"
+                        th:text="${#temporals.format(hashtag.createdAt,'yyyy-MM-dd HH:mm')}">2026-10-05</td>
+                    <td class="center">
+                        <a th:href="@{/hashtagread/{id}(id=${hashtag.hashTagId})}"
+                           class="btn btn-sm btn-line">수정</a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(hashtags)}">
+                    <td colspan="6" class="table-empty">등록된 해시태그가 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('밸런스 게임 등록')}"></head>
+<link rel="stylesheet" th:href="@{/css/board.css}">
+<body>
+<header th:replace="~{fragments/layout :: header('contents')}"></header>
+
+<main class="main">
+    <div class="wrap">
+        <div class="form-page">
+            <div class="page-head center">
+                <div>
+                    <h1>새로운 밸런스 게임 만들기</h1>
+                    <p>다른 사용자들과 공유할 나만의 쫄깃한 질문을 등록해보세요!</p>
+                </div>
+            </div>
+
+            <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+
+            <div class="card">
+                <div class="card-body">
+                    <form th:action="@{/balance/insert}" method="post">
+
+                        <div class="field">
+                            <label for="balanceGameTitle">게임 질문</label>
+                            <input type="text" id="balanceGameTitle" name="balanceGameTitle" class="form-control" placeholder="예: 여행지에서 무조건 평생 하나만 먹어야 한다면?" required>
+                        </div>
+
+                        <div class="option-grid balance-options">
+                            <div class="field">
+                                <label for="balanceGameOptionA" class="opt-a">옵션 A</label>
+                                <input type="text" id="balanceGameOptionA" name="balanceGameOptionA" class="form-control" placeholder="옵션 A 내용을 입력하세요" required>
+                            </div>
+                            <div class="field">
+                                <label for="balanceGameOptionB" class="opt-b">옵션 B</label>
+                                <input type="text" id="balanceGameOptionB" name="balanceGameOptionB" class="form-control" placeholder="옵션 B 내용을 입력하세요" required>
+                            </div>
+                        </div>
+
+                        <div class="form-actions fill">
+                            <button type="submit" class="btn btn-primary">등록하기</button>
+                            <a th:href="@{/balance/list}" class="btn btn-line">취소</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

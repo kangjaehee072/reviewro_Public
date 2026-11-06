@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('admin')}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReviewRo - 관리자 대시보드</title>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between bg-slate-100">
+
+<!-- 1. Nav / Header 영역 -->
+<header th:replace="~{fragments/layout :: header('admin')}" ></header>
+
+<!-- Main Dashboard Container -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-6 flex-1">
+
+    <!-- 페이지 타이틀 -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900">관리자 대시보드</h1>
+            <p class="text-xs text-slate-500 mt-0.5">플랫폼 운영 현황 및 통계를 한눈에 관리합니다.</p>
+        </div>
+    </div>
+
+    <!-- 2. 상단 4개 바로가기 메뉴 카드 그리드 -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+        <!-- 회원관리 바로가기 -->
+        <a th:href="@{/admin/members}" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-500 transition-all group flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                    <i data-lucide="users" class="w-5 h-5"></i>
+                </div>
+                <span class="text-xs font-semibold text-blue-600 group-hover:translate-x-1 transition-transform">바로가기 →</span>
+            </div>
+            <div>
+                <h3 class="font-bold text-slate-800 text-base">회원관리</h3>
+                <p class="text-xs text-slate-500 mt-1">가입 회원 정보 및 권한 관리</p>
+            </div>
+        </a>
+
+        <!-- 챌린지 관리 바로가기 -->
+        <a th:href="@{/challengelist}" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-amber-500 transition-all group flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition-colors">
+                    <i data-lucide="trophy" class="w-5 h-5"></i>
+                </div>
+                <span class="text-xs font-semibold text-amber-600 group-hover:translate-x-1 transition-transform">바로가기 →</span>
+            </div>
+            <div>
+                <h3 class="font-bold text-slate-800 text-base">챌린지 관리</h3>
+                <p class="text-xs text-slate-500 mt-1">시즌 미션 및 리워드 설정</p>
+            </div>
+        </a>
+
+        <!-- 장소관리 바로가기 -->
+        <a th:href="@{/admin/location}" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-emerald-500 transition-all group flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                    <i data-lucide="map-pin" class="w-5 h-5"></i>
+                </div>
+                <span class="text-xs font-semibold text-emerald-600 group-hover:translate-x-1 transition-transform">바로가기 →</span>
+            </div>
+            <div>
+                <h3 class="font-bold text-slate-800 text-base">장소관리</h3>
+                <p class="text-xs text-slate-500 mt-1">등록된 여행 스팟 및 지도 관리</p>
+            </div>
+        </a>
+
+        <!-- 관리자용 게시판 바로가기 -->
+        <a th:href="@{/admin/post/list}" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-purple-500 transition-all group flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                    <i data-lucide="clipboard-list" class="w-5 h-5"></i>
+                </div>
+                <span class="text-xs font-semibold text-purple-600 group-hover:translate-x-1 transition-transform">바로가기 →</span>
+            </div>
+            <div>
+                <h3 class="font-bold text-slate-800 text-base">게시판 관리</h3>
+                <p class="text-xs text-slate-500 mt-1">메거진 및 공지사항 작성</p>
+            </div>
+        </a>
+
+    </div>
+
+    <!-- KPI -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <p class="text-xs font-semibold text-slate-500">전체 회원</p>
+            <p class="text-2xl font-bold text-slate-900 mt-1"><span th:text="${#numbers.formatInteger(kpi.memberTotal, 1, 'COMMA')}">0</span><span class="text-sm font-semibold text-slate-400 ml-0.5">명</span></p>
+            <p class="text-[11px] text-emerald-600 font-semibold mt-1">최근 7일 +<span th:text="${kpi.memberWeek}">0</span></p>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <p class="text-xs font-semibold text-slate-500">리뷰</p>
+            <p class="text-2xl font-bold text-slate-900 mt-1"><span th:text="${#numbers.formatInteger(kpi.reviewTotal, 1, 'COMMA')}">0</span><span class="text-sm font-semibold text-slate-400 ml-0.5">건</span></p>
+            <p class="text-[11px] text-emerald-600 font-semibold mt-1">최근 7일 +<span th:text="${kpi.reviewWeek}">0</span></p>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <p class="text-xs font-semibold text-slate-500">커뮤니티 게시글</p>
+            <p class="text-2xl font-bold text-slate-900 mt-1"><span th:text="${#numbers.formatInteger(kpi.postTotal, 1, 'COMMA')}">0</span><span class="text-sm font-semibold text-slate-400 ml-0.5">건</span></p>
+            <p class="text-[11px] text-emerald-600 font-semibold mt-1">최근 7일 +<span th:text="${kpi.postWeek}">0</span></p>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <p class="text-xs font-semibold text-slate-500">일정 템플릿</p>
+            <p class="text-2xl font-bold text-slate-900 mt-1"><span th:text="${#numbers.formatInteger(kpi.tripPlanTotal, 1, 'COMMA')}">0</span><span class="text-sm font-semibold text-slate-400 ml-0.5">개</span></p>
+            <p class="text-[11px] text-slate-500 font-semibold mt-1">누적 퍼감 <span th:text="${kpi.tripPlanShare}">0</span> · 여행계획 <span th:text="${kpi.travelPlanTotal}">0</span></p>
+        </div>
+    </div>
+
+    <!-- 3. 중간 그래프 영역 (선그래프 & 막대그래프) -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- 최근 7일 신규 가입 -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="font-bold text-slate-900 text-sm">신규 가입 추이</h3>
+                    <p class="text-xs text-slate-500">최근 7일간 일별 가입자 수</p>
+                </div>
+                <span class="text-xs bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-full font-semibold">7일 합계 <span th:text="${kpi.memberWeek}">0</span>명</span>
+            </div>
+            <div class="h-48 w-full bg-slate-50 rounded-xl border border-slate-100 flex items-end px-4 py-3 gap-4">
+                <div th:each="d : ${weeklySignups}" class="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+                    <span class="text-[10px] font-semibold text-slate-600" th:text="${d.count}">0</span>
+                    <div class="w-full bg-blue-600 rounded-t min-h-[2px]" th:style="'height:' + ${d.percent * 0.8} + '%'"></div>
+                    <span class="text-[10px]" th:classappend="${d.today} ? 'font-bold text-blue-600' : 'text-slate-400'" th:text="${d.label}">월</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 해시태그 사용 상위 -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="font-bold text-slate-900 text-sm">인기 해시태그</h3>
+                    <p class="text-xs text-slate-500">사용 횟수 상위 4개 태그</p>
+                </div>
+            </div>
+            <div class="h-48 w-full bg-slate-50 rounded-xl border border-slate-100 p-4 flex flex-col justify-around">
+                <p th:if="${#lists.isEmpty(topHashTags)}" class="text-xs text-slate-400 text-center">등록된 해시태그가 없습니다.</p>
+                <div th:each="t, st : ${topHashTags}" class="space-y-1">
+                    <div class="flex justify-between text-xs font-medium text-slate-600">
+                        <span th:text="'#' + ${t.name}">#태그</span>
+                        <span class="font-bold text-slate-800" th:text="${t.count} + '건'">0건</span>
+                    </div>
+                    <div class="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full"
+                             th:classappend="${st.index == 0} ? 'bg-blue-600' : (${st.index == 1} ? 'bg-purple-600' : (${st.index == 2} ? 'bg-amber-500' : 'bg-emerald-600'))"
+                             th:style="'width:' + ${t.percent} + '%'"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</main>
+
+<!-- 5. Footer 영역 -->
+<footer th:replace="~{fragments/layout :: footer}" class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400">
+    <div class="max-w-7xl mx-auto px-4">
+        &copy; 2026 ReviewRo Admin Dashboard. All rights reserved.
+    </div>
+</footer>
+
+<!-- Script Initialization -->
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>

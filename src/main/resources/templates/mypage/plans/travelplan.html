@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('내 여행 계획')}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReviewRo - 내 여행 계획</title>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between bg-slate-100">
+
+<!-- Nav / Header 영역 -->
+<header th:replace="~{fragments/layout :: header('contents')}"></header>
+
+<!-- Main Container (사이드바 & 메인 영역 분리) -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-1">
+    <div class="flex flex-col lg:flex-row items-start gap-6">
+
+        <!-- ==================== [좌측 마인페이지 사이드바] ==================== -->
+        <aside th:replace="~{fragments/mypage-menu :: menu('plans')}"></aside>
+
+        <!-- ==================== [우측 메인 콘텐츠 영역] ==================== -->
+        <section class="flex-1 w-full space-y-6">
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
+
+                <!-- 페이지 헤더 -->
+                <div class="pb-4 border-b border-slate-100 flex items-center justify-between">
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-900">내 여행 계획</h1>
+                        <p class="text-xs text-slate-500 mt-0.5">나만의 특별한 여행 일정과 계획을 관리하세요.</p>
+                    </div>
+
+                    <!-- 새 여행 계획 작성 버튼 -->
+                    <a th:href="@{/mypage/plans/insert}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-md transition-all flex items-center gap-1.5">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>새 일정 등록</span>
+                    </a>
+                </div>
+
+                <!-- 여행 계획 카드 리스트 그리드 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <!-- 여행 일정 카드 (반복 영역) -->
+                    <div th:each="plan : ${travelPlans}" class="p-5 bg-slate-50/70 hover:bg-slate-50 border border-slate-200 rounded-2xl transition-all flex flex-col justify-between space-y-4 shadow-sm hover:shadow-md">
+
+                        <div class="space-y-3">
+                            <!-- 태그 및 인원 정보 -->
+                            <div class="flex items-center justify-between text-xs">
+                                <span th:text="${plan.planType != null ? plan.planType : '자유 여행'}"
+                                      class="px-2.5 py-1 bg-blue-50 text-blue-600 font-bold rounded-lg text-[11px]">가족 여행</span>
+
+                                <span class="text-slate-400 flex items-center gap-1 text-[11px]">
+                                    <i data-lucide="users" class="w-3.5 h-3.5"></i>
+                                    <span th:text="${plan.planMember != null ? plan.planMember : '1명'}">2명</span>
+                                </span>
+                            </div>
+
+                            <!-- 여행 제목 (planTitle -> title) -->
+                            <h2 class="font-bold text-slate-900 text-base line-clamp-1" th:text="${plan.planTitle}">제주도 3박 4일 힐링 여행</h2>
+
+                            <!-- 여행 일정 (시작일 ~ 종료일) (planStartDate -> startDate 등) -->
+                            <div class="flex items-center gap-2 text-xs text-slate-600 font-medium">
+                                <i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i>
+                                <span th:text="${plan.planStartDate}">2026-10-20</span>
+                                <span>~</span>
+                                <span th:text="${plan.planEndDate}">2026-10-24</span>
+                            </div>
+
+                            <!-- 여행 설명 요약 (planDescription -> description) -->
+                            <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed" th:text="${plan.planDescription}">
+                                가족들과 함께하는 맛집 및 해안도로 드라이브 중심의 편안한 힐링 여행 일정입니다.
+                            </p>
+                        </div>
+
+                        <!-- 하단 상세 관리 및 삭제 버튼 영역 -->
+                        <div class="pt-3 border-t border-slate-200/60 flex items-center justify-between text-xs">
+                            <span class="text-[11px] text-slate-400" th:text="${plan.createdAt != null ? #temporals.format(plan.createdAt, 'yyyy.MM.dd 등록') : '등록일 없음'}">2026.10.19 등록</span>
+
+                            <div class="flex items-center gap-1.5">
+                                <!-- 상세보기 버튼 -->
+                                <a th:href="@{/mypage/plans/read/{id}(id=${plan.planId})}" class="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-semibold rounded-lg transition-colors text-[11px]">
+                                    상세보기
+                                </a>
+                                <!--  수정 버튼 -->
+                                <a th:href="@{/mypage/plans/update/{id}(id=${plan.planId})}" class="px-3 py-1.5 bg-white border border-blue-200 hover:bg-blue-50 text-blue-600 font-semibold rounded-lg transition-colors text-[11px]">
+                                    수정
+                                </a>
+                                <!-- 삭제버튼 -->
+                                <form th:action="@{/mypage/plans/delete/{id}(id=${plan.planId})}" method="post" onsubmit="return confirm('정말 이 여행 계획을 삭제하시겠습니까?');" class="inline">
+                                    <button type="submit" class="px-3 py-1.5 bg-white border border-red-200 hover:bg-red-50 text-red-600 font-semibold rounded-lg transition-colors text-[11px] cursor-pointer">
+                                        삭제
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- 여행 계획이 없을 때 -->
+                    <div th:if="${#lists.isEmpty(travelPlans)}" class="col-span-full py-12 text-center text-slate-400 space-y-3">
+                        <i data-lucide="map" class="w-10 h-10 mx-auto text-slate-300"></i>
+                        <p class="text-xs">등록된 여행 계획이 없습니다.<br>새로운 여행 일정을 만들어 보세요!</p>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+</main>
+
+<!-- Footer 영역 -->
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<!-- Script Initialization -->
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>

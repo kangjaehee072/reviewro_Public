@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('동행자 구하기')}"></head>
+<link rel="stylesheet" th:href="@{/css/board.css}">
+<body>
+<header th:replace="~{fragments/layout :: header('community')}"></header>
+
+<main class="main board board-companion">
+    <div class="wrap">
+
+        <section class="board-hero">
+            <div class="board-hero-icon"><i data-lucide="users" class="ico ico-lg"></i></div>
+            <div class="board-hero-text">
+                <span class="board-eyebrow">동행 찾기</span>
+                <h1>같이 갈래?</h1>
+                <p>같은 날, 같은 곳으로 떠날 여행 친구를 찾아보세요</p>
+            </div>
+            <div class="board-hero-actions">
+                <a th:href="@{/companion/insert}" class="btn btn-board">
+                    <i data-lucide="pen-line" class="ico"></i>모집글 쓰기
+                </a>
+            </div>
+        </section>
+
+        <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+        <div th:if="${successMessage}" class="notice notice-ok" th:text="${successMessage}"></div>
+
+        <div class="board-toolbar">
+            <span class="board-count">전체 <b th:text="${posts.totalElements}">0</b>개</span>
+            <form class="board-search" th:action="@{/companion/list}" method="get" role="search">
+                <i data-lucide="search" class="ico"></i>
+                <input type="search" name="keyword" th:value="${keyword}" placeholder="제목·지역으로 검색">
+                <button type="submit">검색</button>
+            </form>
+        </div>
+
+        <div class="card board-list">
+            <div th:if="${posts.isEmpty()}" class="board-empty">
+                <div class="board-empty-icon"><i data-lucide="users" class="ico ico-lg"></i></div>
+                <p th:text="${keyword != null and !keyword.isBlank()} ? '검색 결과가 없어요.' : '아직 모집글이 없어요. 먼저 동행을 구해 보세요!'">
+                    아직 모집글이 없어요.</p>
+                <a th:href="@{/companion/insert}" class="btn btn-board btn-sm">모집글 쓰기</a>
+            </div>
+
+            <table class="table" th:unless="${posts.isEmpty()}">
+                <thead>
+                <tr>
+                    <th class="num col-hide">번호</th>
+                    <th>모집글</th>
+                    <th class="center col-hide">여행 기간</th>
+                    <th class="center col-hide">작성자</th>
+                    <th class="center col-hide">작성일</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="post : ${posts.content}">
+                    <td class="num col-hide" th:text="${post.companionPostId}">1</td>
+                    <td>
+                        <a class="post-cell" th:href="@{/companion/read/{id}(id=${post.companionPostId})}">
+                            <img th:if="${post.thumbnail != null}" th:src="${post.thumbnail}" class="post-cell-thumb" alt="">
+                            <span class="post-cell-text">
+                                <span class="post-cell-title" th:text="${post.companionPostTitle}">제목</span>
+                                <span class="post-cell-sub"
+                                      th:text="${(post.companionPostLocation ?: '지역 미정') + ' · ' + (post.companionPostPeople ?: '?') + '명 모집'}">부산 · 2명 모집</span>
+                            </span>
+                        </a>
+                    </td>
+                    <td class="center nowrap col-hide"
+                        th:text="${post.companionPostStartDate != null} ? ${#temporals.format(post.companionPostStartDate, 'MM.dd')} + ' ~ ' + ${#temporals.format(post.companionPostEndDate, 'MM.dd')} : '-'">
+                        10.10 ~ 10.12</td>
+                    <td class="center col-hide" th:text="${post.companionPostMember ?: '회원'}">작성자</td>
+                    <td class="center nowrap col-hide"
+                        th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd')}">2026-10-10</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <nav class="pager" th:if="${posts.totalPages > 1}"
+             th:with="blockSize=10,
+              start=${(posts.number / blockSize) * blockSize},
+              end=${((start + blockSize - 1) < posts.totalPages) ? (start + blockSize - 1) : (posts.totalPages - 1)}">
+
+            <a th:if="${!posts.first}"
+               th:href="@{/companion/list(keyword=${keyword}, page=${posts.number - 1})}">이전</a>
+            <span th:unless="${!posts.first}" class="off">이전</span>
+
+            <th:block th:each="i : ${#numbers.sequence(start, end)}">
+                <span th:if="${i == posts.number}" class="on" th:text="${i + 1}">1</span>
+                <a th:unless="${i == posts.number}"
+                   th:href="@{/companion/list(keyword=${keyword}, page=${i})}" th:text="${i + 1}">2</a>
+            </th:block>
+
+            <a th:if="${!posts.last}"
+               th:href="@{/companion/list(keyword=${keyword}, page=${posts.number + 1})}">다음</a>
+            <span th:unless="${!posts.last}" class="off">다음</span>
+        </nav>
+
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/board :: icons}"></th:block>
+</body>
+</html>

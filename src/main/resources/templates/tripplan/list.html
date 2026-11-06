@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('일정 템플릿 마켓')}"></head>
+<link rel="stylesheet" th:href="@{/css/board.css}">
+<body>
+<header th:replace="~{fragments/layout :: header('community')}"></header>
+
+<main class="main board board-market">
+    <div class="wrap">
+
+        <section class="board-hero">
+            <div class="board-hero-icon"><i data-lucide="map" class="ico ico-lg"></i></div>
+            <div class="board-hero-text">
+                <span class="board-eyebrow">일정 공유</span>
+                <h1>일정 템플릿 마켓</h1>
+                <p>다른 여행자가 짠 일정을 구경하고, 마음에 들면 내 여행 계획으로 그대로 퍼가세요</p>
+            </div>
+            <div class="board-hero-actions">
+                <a th:href="@{/tripplan/insert}" class="btn btn-board">
+                    <i data-lucide="upload" class="ico"></i>내 일정 공유하기
+                </a>
+            </div>
+        </section>
+
+        <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+        <div th:if="${successMessage}" class="notice notice-ok" th:text="${successMessage}"></div>
+
+        <div class="board-toolbar">
+            <span class="board-count">전체 <b th:text="${tripPlan.totalElements}">0</b>개</span>
+        </div>
+
+        <div th:if="${tripPlan.isEmpty()}" class="card board-empty">
+            <div class="board-empty-icon"><i data-lucide="map" class="ico ico-lg"></i></div>
+            <p>아직 공유된 일정이 없어요. 첫 일정을 올려 보세요!</p>
+            <a th:href="@{/tripplan/insert}" class="btn btn-board btn-sm">내 일정 공유하기</a>
+        </div>
+
+        <div class="market-grid" th:unless="${tripPlan.isEmpty()}">
+            <a th:each="plan : ${tripPlan.content}" class="market-card"
+               th:href="@{/tripplan/read/{id}(id=${plan.tripplanId})}">
+                <div class="market-card-top">
+                    <span class="badge badge-board"
+                          th:text="${plan.tripDays != null and !plan.tripDays.isEmpty()} ? ${#lists.size(plan.tripDays)} + '일 일정' : '여행 일정'">3일 일정</span>
+                    <span th:if="${plan.tripplanIsPublic == false}" class="badge badge-line">비공개</span>
+                </div>
+                <h3 th:text="${plan.tripplanTitle}">부산 2박 3일 바다 여행</h3>
+                <p th:if="${!#strings.isEmpty(plan.tripplanContent)}" th:text="${plan.tripplanContent}">소개</p>
+                <div class="market-card-foot">
+                    <span><i data-lucide="user" class="ico"></i><span th:text="${plan.tripplanName ?: '여행자'}">작성자</span></span>
+                    <span><i data-lucide="download" class="ico"></i>퍼감 <b th:text="${plan.tripplanShareCount ?: 0}">0</b></span>
+                </div>
+            </a>
+        </div>
+
+        <nav class="pager" th:if="${tripPlan.totalPages > 1}"
+             th:with="blockSize=10,
+              start=${(tripPlan.number / blockSize) * blockSize},
+              end=${((start + blockSize - 1) < tripPlan.totalPages) ? (start + blockSize - 1) : (tripPlan.totalPages - 1)}">
+
+            <a th:if="${!tripPlan.first}"
+               th:href="@{/tripplan/list(page=${tripPlan.number - 1})}">이전</a>
+            <span th:unless="${!tripPlan.first}" class="off">이전</span>
+
+            <th:block th:each="i : ${#numbers.sequence(start, end)}">
+                <span th:if="${i == tripPlan.number}" class="on" th:text="${i + 1}">1</span>
+                <a th:unless="${i == tripPlan.number}"
+                   th:href="@{/tripplan/list(page=${i})}" th:text="${i + 1}">2</a>
+            </th:block>
+
+            <a th:if="${!tripPlan.last}"
+               th:href="@{/tripplan/list(page=${tripPlan.number + 1})}">다음</a>
+            <span th:unless="${!tripPlan.last}" class="off">다음</span>
+        </nav>
+
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/board :: icons}"></th:block>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+<!-- 1. 프래그먼트 이름 지정 -->
+<div th:fragment="locationList">
+    <table>
+        <thead>
+        <tr>
+            <th style="width: 8%;">아이디</th>
+            <th style="width: 22%;">장소명</th>
+            <th style="width: 15%;">카테고리</th>
+            <th style="width: 10%;">별점</th>
+            <th style="width: 35%;">주소</th>
+            <th style="width: 10%;">관리</th>
+        </tr>
+        </thead>
+
+        <!-- 2. tbody id 부여 (서버 사이드 및 JS 동적 렌더링용) -->
+        <tbody id="locationListBody">
+        <tr th:each="location : ${locations}">
+            <td th:text="${location.locationId}">1</td>
+            <td style="text-align: left;">
+                <a th:href="@{/locationread(id=${location.locationId})}"
+                   th:text="${location.locationName}">장소 이름</a>
+            </td>
+            <td th:text="${location.locationCategory}">카테고리</td>
+            <td th:text="${location.locationReviewAvg}">0.0</td>
+            <td class="content-col" th:text="${location.locationAddress}">주소 정보</td>
+            <td>
+                <button th:onclick="|deleteLocation(${location.locationId})|">삭제</button>
+            </td>
+        </tr>
+
+        <tr th:if="${#lists.isEmpty(locations)}">
+            <td colspan="6">등록된 장소 정보가 없습니다.</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- 3. 페이징 영역 -->
+    <div th:if="${totalPages > 0}">
+        <a th:if="${currentPage > 0}"
+           th:href="@{/locationlist(page=${currentPage - 1})}">이전</a>
+
+        <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+            <a th:href="@{/locationlist(page=${i})}"
+               th:text="${i + 1}"
+               th:style="${i == currentPage} ? 'font-weight:bold'"></a>
+        </span>
+
+        <a th:if="${currentPage < totalPages - 1}"
+           th:href="@{/locationlist(page=${i + 1})}">다음</a>
+    </div>
+
+    <!-- 4. 자바스크립트 영역 -->
+    <script>
+        async function loadLocations() {
+            // 컨트롤러 GET /api/locations 호출 (List<LocationDTO> 반환)
+            const response = await fetch('/api/locations');
+            const locations = await response.json();
+
+            const tbody = document.getElementById('locationListBody');
+
+            if (!locations || locations.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6">등록된 장소 정보가 없습니다.</td></tr>';
+                return;
+            }
+
+            // 장소 정보는 HTML 로 끼우기 전에 이스케이프한다
+            const esc = text => {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            };
+
+            // LocationDTO 필드명 연동 (locationId, locationName, locationCategory, locationReviewAvg, locationAddress)
+            tbody.innerHTML = locations.map(loc => `
+                <tr>
+                    <td>${loc.locationId}</td>
+                    <td style="text-align: left;">
+                        <a href="/locationread?id=${loc.locationId}">${esc(loc.locationName)}</a>
+                    </td>
+                    <td>${esc(loc.locationCategory || '')}</td>
+                    <td>${esc(loc.locationReviewAvg || 0.0)}</td>
+                    <td class="content-col">${esc(loc.locationAddress || '')}</td>
+                    <td>
+                        <button onclick="deleteLocation(${loc.locationId})">삭제</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function deleteLocation(locationId) {
+            if (!confirm("정말 삭제하시겠습니까?")) return;
+
+            // 컨트롤러 @DeleteMapping("locationdelete") @RequestParam("id") 연동
+            const response = await fetch(`/locationdelete?id=${locationId}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                alert("삭제되었습니다.");
+                window.location.reload(); // 삭제 후 목록 새로고침
+            } else {
+                alert("삭제 실패했습니다.");
+            }
+        }
+    </script>
+</div>
+</body>
+</html>

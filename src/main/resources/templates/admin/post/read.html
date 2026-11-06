@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('공지·추천')}"></head>
+<link rel="stylesheet" th:href="@{/css/board.css}">
+<body>
+<header th:replace="~{fragments/layout :: header('community')}"></header>
+
+<main class="main board board-notice">
+    <div class="wrap"
+         th:with="isAdminView=${loginMember != null and loginMember.memberRole.name() != 'USER'}">
+    <div th:class="${isAdminView} ? 'flex flex-col lg:flex-row items-start gap-6' : ''">
+        <!-- 관리자만 좌측 관리자 메뉴 -->
+        <th:block th:if="${isAdminView}">
+            <aside th:replace="~{fragments/admin-menu :: menu('notices')}"></aside>
+        </th:block>
+    <div class="flex-1 min-w-0 w-full">
+
+        <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+        <div th:if="${successMessage}" class="notice notice-ok" th:text="${successMessage}"></div>
+
+        <article class="card post"
+                 th:with="isAdmin=${role != null and (role.name() == 'ADMIN' or role.name() == 'SUPERADMIN')}">
+            <header class="post-head">
+                <div class="post-badges">
+                    <span class="badge"
+                          th:classappend="${postDto.adminPostCategory == '공지'} ? 'badge-board' : 'badge-accent'"
+                          th:text="${postDto.adminPostCategory == '공지'} ? '공지사항' : '이달의 추천'">공지사항</span>
+                    <span th:if="${postDto.adminPostPinned}" class="badge badge-warn">상단 고정</span>
+                </div>
+                <h1 class="post-title" th:text="${postDto.adminPostTitle}">제목</h1>
+
+                <div class="post-meta">
+                    <span>
+                        <span class="post-avatar">R</span>
+                        <span class="post-author">리뷰로 운영팀</span>
+                    </span>
+                    <span><i data-lucide="calendar" class="ico"></i>
+                        <span th:text="${#temporals.format(postDto.createdAt, 'yyyy-MM-dd HH:mm')}">2026-10-11</span></span>
+                    <span><i data-lucide="eye" class="ico"></i>조회 <span th:text="${postDto.adminPostViewCount ?: 0}">0</span></span>
+                </div>
+            </header>
+
+            <div class="post-body">
+                <div class="post-gallery" th:if="${images != null and !images.isEmpty()}"
+                     th:classappend="${images.size() == 1} ? 'single'">
+                    <img th:each="src : ${images}" th:src="${src}" alt="첨부 사진">
+                </div>
+
+                <div class="post-content" th:text="${postDto.adminPostContent}">게시글 내용</div>
+
+            </div>
+
+            <div class="post-reactions" data-widget="reactions" data-type="ADMIN_POST"
+                 th:attr="data-id=${postDto.adminPostId}"></div>
+
+            <footer class="post-foot">
+                <a th:href="@{/admin/post/list}" class="btn btn-line">
+                    <i data-lucide="list" class="ico"></i>목록
+                </a>
+
+                <div class="owner-actions" th:if="${isAdmin}">
+                    <a th:href="@{/admin/post/update/{id}(id=${postDto.adminPostId})}" class="btn btn-line">
+                        <i data-lucide="pencil" class="ico"></i>수정
+                    </a>
+                    <form th:action="@{/admin/post/delete}" method="post" class="inline-form"
+                          onsubmit="return confirm('이 글을 삭제할까요? 삭제하면 되돌릴 수 없어요.');">
+                        <input type="hidden" name="adminPostId" th:value="${postDto.adminPostId}">
+                        <button type="submit" class="btn btn-danger-ghost">
+                            <i data-lucide="trash-2" class="ico"></i>삭제
+                        </button>
+                    </form>
+                </div>
+            </footer>
+        </article>
+
+        <section class="card post-comments">
+            <div data-widget="comments" data-type="ADMIN_POST" th:attr="data-id=${postDto.adminPostId}"></div>
+        </section>
+
+    </div>
+    </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script type="module" th:src="@{/js/dist/board.js}"></script>
+<th:block th:replace="~{fragments/board :: icons}"></th:block>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="stage" class="card pm-stage">
+    <div class="pm-bar" id="pm-bar-root"></div>
+    <div class="pm-map" id="pmMap"></div>
+    <span class="pm-hint" id="pm-hint-root"></span>
+    <div class="pm-zoom">
+        <button type="button" id="pmZoomIn" title="확대">＋</button>
+        <button type="button" id="pmZoomOut" title="축소">－</button>
+    </div>
+    <div class="pm-tooltip" id="pmTooltip" hidden></div>
+    <div id="pm-panel-root"></div>
+</div>
+
+<div th:fragment="exportBar" class="pm-export">
+    <label for="pmPreset">PNG 저장</label>
+    <select id="pmPreset">
+        <option value="6000x9000">세로형 액자 (6000x9000)</option>
+        <option value="9000x6000">가로형 액자 (9000x6000)</option>
+        <option value="5120x2880">5K (5120×2880)</option>
+        <option value="3840x2160">UHD (3840×2160)</option>
+        <option value="1920x1080" selected>FHD (1920×1080)</option>
+        <option value="1280x720">HD (1280×720)</option>
+        <option value="1080x1920">모바일 (1080×1920)</option>
+    </select>
+    <button type="button" class="btn btn-sm btn-line" id="pmPreview">보기</button>
+    <button type="button" class="btn btn-sm btn-line" id="pmExport">다운로드</button>
+    <dialog id="pmPreviewDialog" class="pm-preview">
+        <button type="button" class="pm-preview-close" id="pmPreviewClose" aria-label="닫기">&times;</button>
+        <img id="pmPreviewImg" alt="">
+    </dialog>
+</div>
+
+</body>
+</html>

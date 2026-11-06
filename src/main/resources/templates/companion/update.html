@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('동행 모집글 수정')}"></head>
+<link rel="stylesheet" th:href="@{/css/board.css}">
+<body>
+<header th:replace="~{fragments/layout :: header('community')}"></header>
+
+<main class="main board board-companion">
+    <div class="wrap">
+        <div class="board-form">
+
+            <a th:href="@{/companion/read/{id}(id=${companionPostDTO.companionPostId})}" class="back-link"><i data-lucide="chevron-left" class="ico"></i>모집글로 돌아가기</a>
+            <div class="board-form-head">
+                <h1>모집글 수정</h1>
+            </div>
+
+            <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+
+            <form class="card" th:action="@{/companion/update}" th:object="${companionPostDTO}" method="post">
+                <input type="hidden" th:field="*{companionPostId}">
+
+                <section class="form-section">
+                    <h2 class="form-section-title"><i data-lucide="map-pin" class="ico"></i>여행 정보</h2>
+
+                    <div class="field">
+                        <label for="companionPostMember">작성자</label>
+                        <input type="text" id="companionPostMember" th:field="*{companionPostMember}" readonly>
+                    </div>
+
+                    <div class="field">
+                        <label for="companionPostTitle">제목<span class="req">*</span></label>
+                        <input type="text" id="companionPostTitle" th:field="*{companionPostTitle}"
+                               placeholder="예: 11월 첫 주 제주 동쪽 같이 도실 분" required>
+                    </div>
+
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="companionPostLocation">지역 / 장소<span class="req">*</span></label>
+                            <input type="text" id="companionPostLocation" th:field="*{companionPostLocation}"
+                                   placeholder="예: 부산 해운대" required>
+                        </div>
+                        <div class="field">
+                            <label for="companionPostPeople">모집 인원<span class="req">*</span></label>
+                            <input type="number" id="companionPostPeople" th:field="*{companionPostPeople}"
+                                   placeholder="예: 2" min="1" required>
+                        </div>
+                    </div>
+
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="companionPostStartDate">여행 시작일<span class="req">*</span></label>
+                            <input type="date" id="companionPostStartDate" th:field="*{companionPostStartDate}" required>
+                        </div>
+                        <div class="field">
+                            <label for="companionPostEndDate">여행 종료일<span class="req">*</span></label>
+                            <input type="date" id="companionPostEndDate" th:field="*{companionPostEndDate}" required>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="form-section">
+                    <h2 class="form-section-title"><i data-lucide="pen-line" class="ico"></i>소개</h2>
+
+                    <div class="field">
+                        <label for="companionPostContent">내용<span class="req">*</span></label>
+                        <textarea id="companionPostContent" th:field="*{companionPostContent}" rows="10" required
+                                  placeholder="여행 스타일, 예산, 이동 수단, 원하는 동행 조건 등을 적어 주세요"></textarea>
+                    </div>
+                </section>
+
+                <div class="board-form-foot">
+                    <a th:href="@{/companion/read/{id}(id=*{companionPostId})}" class="btn btn-line">취소</a>
+                    <button type="submit" class="btn btn-board"><i data-lucide="check" class="ico"></i>수정 완료</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/board :: icons}"></th:block>
+<script>
+    // 종료일은 시작일보다 앞을 못 고르게
+    const start = document.getElementById('companionPostStartDate');
+    const end = document.getElementById('companionPostEndDate');
+    start.addEventListener('change', () => { end.min = start.value; });
+</script>
+</body>
+</html>

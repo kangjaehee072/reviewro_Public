@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('해시태그 상세')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('contents')}"></header>
+
+<main class="main">
+    <div class="wrap">
+        <div class="form-page">
+
+            <div class="page-head">
+                <div>
+                    <h1>해시태그 상세 / 수정</h1>
+                </div>
+            </div>
+
+            <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+            <div th:if="${successMessage}" class="notice notice-ok" th:text="${successMessage}"></div>
+
+            <div class="card">
+                <div class="card-body">
+                    <form th:action="@{/hashtagupdate}" th:object="${hashtag}" method="post">
+
+                        <div class="field">
+                            <label for="hashTagId">번호</label>
+                            <input type="text" id="hashTagId" th:field="*{hashTagId}" readonly>
+                        </div>
+
+                        <div class="field">
+                            <label for="hashTagName">해시태그 이름<span class="req">*</span></label>
+                            <input type="text" id="hashTagName" th:field="*{hashTagName}" required>
+                        </div>
+
+                        <div class="field">
+                            <label for="hashTagCategory">카테고리<span class="req">*</span></label>
+                            <input type="text" id="hashTagCategory" th:field="*{hashTagCategory}" required>
+                        </div>
+
+                        <div class="field">
+                            <label for="hashTagUseCnt">사용 횟수</label>
+                            <input type="number" id="hashTagUseCnt" th:field="*{hashTagUseCnt}" min="0">
+                        </div>
+
+                        <div class="field" th:if="${hashtag.createdAt != null}">
+                            <label for="createdAt">생성일시</label>
+                            <input type="text" id="createdAt" readonly
+                                   th:value="${#temporals.format(hashtag.createdAt, 'yyyy-MM-dd HH:mm:ss')}">
+                        </div>
+
+                        <div class="field" th:if="${hashtag.updatedAt != null}">
+                            <label for="updatedAt">최종 수정일시</label>
+                            <input type="text" id="updatedAt" readonly
+                                   th:value="${#temporals.format(hashtag.updatedAt, 'yyyy-MM-dd HH:mm:ss')}">
+                        </div>
+
+                        <div class="form-actions" style="justify-content: space-between">
+                            <a th:href="@{/hashtaglist}" class="btn btn-line">목록으로</a>
+                            <span>
+                                <button type="button" class="btn btn-danger"
+                                        th:data-id="${hashtag.hashTagId}"
+                                        onclick="deleteHashtag(this)">삭제</button>
+                                <button type="submit" class="btn btn-primary">수정 완료</button>
+                            </span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<script>
+    function deleteHashtag(button) {
+        const hashTagId = button.getAttribute('data-id');
+        if (!confirm("정말 삭제하시겠습니까?")) return;
+
+        const tokenMeta = document.querySelector('meta[name="_csrf"]');
+        const headerMeta = document.querySelector('meta[name="_csrf_header"]');
+
+        fetch(`/hashtagdelete/${hashTagId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(tokenMeta && headerMeta && {
+                    [headerMeta.getAttribute('content')]: tokenMeta.getAttribute('content')
+                })
+            }
+        }).then(res => {
+            if (res.ok) {
+                alert("삭제가 완료되었습니다.");
+                window.location.href = "/hashtaglist";
+            } else {
+                alert(`삭제 실패 (상태 코드: ${res.status})`);
+            }
+        });
+    }
+</script>
+</body>
+</html>

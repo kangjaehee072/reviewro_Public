@@ -1,0 +1,58 @@
+/* =========================================================
+   회원관리 페이지 전용
+   표·카드·뱃지·아바타·페이저는 전부 공용(style.css)을 쓰고
+   여기에는 이 페이지에서만 필요한 자리 조정만 둔다
+   ========================================================= */
+
+/* 카드 머리에 들어가는 검색창은 420px 기본값이 너무 넓다 */
+.card-head .searchbar {
+    width: 300px;
+    height: 38px;
+}
+
+.card-head .searchbar button {
+    width: 56px;
+}
+
+/* 제목 옆 "전체 N명" */
+.card-head small {
+    margin-left: 8px;
+    font-size: var(--fs-caption);
+    font-weight: 400;
+    color: var(--text-3);
+}
+
+/* 탈퇴 모달 안의 비밀번호 칸 */
+.confirm-modal .field {
+    text-align: left;
+}
+
+/* ===== 좁은 화면 ===== */
+@media (max-width: 720px) {
+    .card-head {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .card-head .searchbar { width: 100%; }
+}
+
+/* 권한 선택칸 (슈퍼어드민에게만 보인다) */
+.role-select {
+    height: 32px;
+    padding: 0 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-chip);
+    background: var(--surface);
+    font: inherit;
+    font-size: var(--fs-caption);
+    color: var(--text-1);
+    cursor: pointer;
+}
+
+.role-select:hover,
+.role-select:focus {
+    border-color: var(--primary);
+    outline: 0;
+}

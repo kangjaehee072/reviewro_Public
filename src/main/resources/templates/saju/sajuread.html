@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('사주 상세')}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReviewRo - 사주 상세 정보</title>
+
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between bg-slate-100">
+
+<!-- 1. Nav / Header 영역 -->
+<header th:replace="~{fragments/layout :: header('contents')}"></header>
+
+<!-- Main Container (사이드바 & 메인 영역 분리) -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-1">
+    <div class="flex flex-col lg:flex-row items-start gap-6">
+
+        <!-- ==================== [좌측 사이드바] (사주팔자 관리 메뉴 활성화) ==================== -->
+        <aside th:replace="~{fragments/admin-menu :: menu('saju')}"></aside>
+
+        <!-- ==================== [우측 메인 콘텐츠 영역] ==================== -->
+        <section class="flex-1 w-full space-y-6">
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
+                <!-- 페이지 타이틀 -->
+                <div class="pb-4 border-b border-slate-100 flex items-center justify-between">
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-900">사주 상세 정보</h1>
+                        <p class="text-xs text-slate-500 mt-0.5">등록된 사주 상세 내역을 조회합니다.</p>
+                    </div>
+                    <span class="px-3 py-1 bg-purple-50 text-purple-600 rounded-full font-bold text-xs" th:text="'ID: ' + ${saju.sajuId}">ID: 1</span>
+                </div>
+
+                <!-- 에러 및 성공 메시지 알림 -->
+                <div th:if="${errorMessage}" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-xs font-semibold shadow-sm" th:text="${errorMessage}"></div>
+                <div th:if="${successMessage}" class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl text-xs font-semibold shadow-sm" th:text="${successMessage}"></div>
+
+                <!-- 와이어프레임 반영: 2블록으로 분할하여 정보 나열 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 text-xs">
+
+                    <!-- 블록 1: 인적 기본 정보 -->
+                    <div class="space-y-4 bg-slate-50/50 p-5 rounded-xl border border-slate-100 flex flex-col justify-between">
+                        <div class="space-y-4">
+                            <h3 class="font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                                <i data-lucide="user" class="w-4 h-4 text-purple-600"></i> 인적 기본 정보
+                            </h3>
+
+                            <div class="space-y-3 pt-1">
+                                <div class="flex justify-between items-center py-2 border-b border-slate-100">
+                                    <span class="font-medium text-slate-500">이름</span>
+                                    <span class="font-bold text-slate-900 text-sm" th:text="${saju.sajuName}">홍길동</span>
+                                </div>
+                                <div class="flex justify-between items-center py-2 border-b border-slate-100">
+                                    <span class="font-medium text-slate-500">성별</span>
+                                    <span th:text="${saju.sajuGender}"
+                                          th:classappend="${saju.sajuGender == '남성'} ? 'bg-blue-50 text-blue-600' : 'bg-rose-50 text-rose-600'"
+                                          class="px-2.5 py-1 rounded-full font-semibold">남성</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-[11px] text-slate-400 pt-2">
+                            * 본 사주 데이터는 회원의 여행 맞춤 추천 알고리즘에 활용됩니다.
+                        </div>
+                    </div>
+
+                    <!-- 블록 2: 출생 및 사주 정보 -->
+                    <div class="space-y-4 bg-slate-50/50 p-5 rounded-xl border border-slate-100 flex flex-col justify-between">
+                        <div class="space-y-4">
+                            <h3 class="font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                                <i data-lucide="calendar" class="w-4 h-4 text-purple-600"></i> 출생 및 시간 정보
+                            </h3>
+
+                            <div class="space-y-3 pt-1">
+                                <div class="flex justify-between items-center py-2 border-b border-slate-100">
+                                    <span class="font-medium text-slate-500">생년월일</span>
+                                    <span class="font-semibold text-slate-800" th:text="${saju.sajuBirthDate}">1995-05-15</span>
+                                </div>
+                                <div class="flex justify-between items-center py-2 border-b border-slate-100">
+                                    <span class="font-medium text-slate-500">음/양력</span>
+                                    <span th:text="${saju.sajuLunar ? '음력' : '양력'}"
+                                          class="px-2 py-0.5 bg-slate-200 text-slate-700 rounded text-[11px] font-semibold">양력</span>
+                                </div>
+                                <div class="flex justify-between items-center py-2 border-b border-slate-100">
+                                    <span class="font-medium text-slate-500">태어난 시간</span>
+                                    <span class="font-semibold text-slate-800" th:text="${#strings.isEmpty(saju.sajuBirthTime) ? '모름' : saju.sajuBirthTime}">자시</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- 하단 버튼 영역 (상세보기 가이드: 목록 / 수정 / 삭제) -->
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <a th:href="@{/sajulist}" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-colors">목록</a>
+
+                    <div class="flex items-center gap-2">
+                        <a th:href="@{/sajuupdate/{id}(id=${saju.sajuId})}"
+                           class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-semibold rounded-xl transition-all">수정</a>
+
+                        <form th:action="@{/sajudelete/{id}(id=${saju.sajuId})}" method="post" class="inline">
+                            <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <button type="submit" class="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 font-semibold rounded-xl transition-colors"
+                                    onclick="return confirm('정말 삭제하시겠습니까?');">삭제</button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+</main>
+
+<!-- Footer 영역 -->
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+<!-- Script Initialization -->
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head th:replace="~{fragments/layout :: head('밸런스 게임 수정')}"></head>
+<link rel="stylesheet" th:href="@{/css/board.css}">
+<body>
+<header th:replace="~{fragments/layout :: header('contents')}"></header>
+
+<main class="main">
+    <div class="wrap">
+        <div class="form-page">
+            <div class="page-head center">
+                <div>
+                    <h1>밸런스 게임 수정</h1>
+                    <p>질문과 선택지 내용을 수정할 수 있습니다.</p>
+                </div>
+            </div>
+
+            <div th:if="${errorMessage}" class="notice notice-error" th:text="${errorMessage}"></div>
+
+            <div class="card">
+                <div class="card-body">
+                    <form th:action="@{/balance/update}" th:object="${balanceGameDto}" method="post">
+                        <!-- 수정 시 필요한 PK값 전달 -->
+                        <input type="hidden" th:field="*{balanceGameId}">
+
+                        <div class="field">
+                            <label for="balanceGameTitle">게임 질문</label>
+                            <input type="text" id="balanceGameTitle" th:field="*{balanceGameTitle}" class="form-control" required>
+                        </div>
+
+                        <div class="option-grid balance-options">
+                            <div class="field">
+                                <label for="balanceGameOptionA" class="opt-a">옵션 A</label>
+                                <input type="text" id="balanceGameOptionA" th:field="*{balanceGameOptionA}" class="form-control" required>
+                            </div>
+                            <div class="field">
+                                <label for="balanceGameOptionB" class="opt-b">옵션 B</label>
+                                <input type="text" id="balanceGameOptionB" th:field="*{balanceGameOptionB}" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="form-actions fill">
+                            <button type="submit" class="btn btn-primary">수정완료</button>
+                            <a th:href="@{/balance/read/{id}(id=*{balanceGameId})}" class="btn btn-line">취소</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
